@@ -1448,8 +1448,17 @@ footer {
           <input class="form-input" id="s_phone" type="text">
         </div>
         <div class="form-group">
-          <label class="form-label">WhatsApp (solo numeri, con prefisso)</label>
-          <input class="form-input" id="s_whatsapp" type="text" placeholder="393331234567">
+          <label class="form-label">WhatsApp — numero con prefisso (es. 393331234567)</label>
+          <div style="display:flex;gap:0.5rem;align-items:flex-start;">
+            <div style="flex:1;">
+              <input class="form-input" id="s_whatsapp" type="text" placeholder="393331234567"
+                oninput="updateWaPreview()">
+              <p id="waPreview" style="font-size:0.7rem;color:var(--gold);margin-top:0.4rem;"></p>
+            </div>
+            <button class="admin-btn-sm" onclick="testWhatsapp()" style="margin-top:2px;flex-shrink:0;">
+              Testa ↗
+            </button>
+          </div>
         </div>
       </div>
       <div class="admin-row">
@@ -2093,13 +2102,15 @@ function submitOrder() {
   const name = document.getElementById('chkName').value.trim();
   const phone = document.getElementById('chkPhone').value.trim();
   if(!name || !phone) { showToast('Inserisci nome e telefono!'); return; }
-  const itemsList = cart.map(c => `▸ ${c.name} x${c.qty} — €${(c.price*c.qty).toFixed(2)}`).join('\n');
+  const itemsList = cart.map(c => `• ${c.name} x${c.qty} — €${(c.price*c.qty).toFixed(2)}`).join('\n');
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
   const notes = document.getElementById('cartNotes').value;
-  const addr = deliveryType === 'delivery' ? `\n📍 Indirizzo: ${document.getElementById('chkAddress').value}` : '\n🏠 Ritiro in sede';
+  const addr = deliveryType === 'delivery'
+    ? `\nIndirizzo: ${document.getElementById('chkAddress').value}`
+    : '\nModalita: Ritiro in sede';
   const time = document.getElementById('chkTime')?.value || '';
-  const msg = `🍕 *NUOVO ORDINE — ${settings.name.toUpperCase()}*\n\n👤 *Nome:* ${name}\n📞 *Telefono:* ${phone}${addr}${time?'\n⏰ Orario: '+time:''}\n\n*Ordine:*\n${itemsList}\n\n💰 *Totale: €${total.toFixed(2)}*${notes?'\n\n📝 Note: '+notes:''}\n\n_Inviato dal sito web_`;
-  const wa = `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(msg)}`;
+  const msg = `*NUOVO ORDINE — ${settings.name.toUpperCase()}*\n\nNome: ${name}\nTelefono: ${phone}${addr}${time?'\nOrario: '+time:''}\n\n*Ordine:*\n${itemsList}\n\n*Totale: €${total.toFixed(2)}*${notes?'\n\nNote: '+notes:''}\n\n_Inviato dal sito web_`;
+  const wa = `https://wa.me/${sanitizePhone(settings.whatsapp)}?text=${encodeURIComponent(msg)}`;
   window.open(wa, '_blank');
   cart = [];
   updateCartUI();
@@ -2137,7 +2148,8 @@ function populateAdminForm() {
   document.getElementById('s_tag').value = s.tag;
   document.getElementById('s_heroImg').value = s.heroImg || '';
   document.getElementById('s_phone').value = s.phone;
-  document.getElementById('s_whatsapp').value = s.whatsapp;
+  document.getElementById('s_whatsapp').value = s.whatsapp || '';
+  updateWaPreview();
   document.getElementById('s_address').value = s.address;
   document.getElementById('s_hours').value = s.hours;
   document.getElementById('s_about1').value = s.about1;
@@ -2157,6 +2169,28 @@ function populateAdminForm() {
   igLoad();
   renderIgAdminEntries();
 }
+function sanitizePhone(num) {
+  // rimuove spazi, +, trattini, parentesi
+  return String(num || '').replace(/[\s\+\-\(\)]/g, '');
+}
+function updateWaPreview() {
+  const raw = document.getElementById('s_whatsapp').value;
+  const clean = sanitizePhone(raw);
+  const prev = document.getElementById('waPreview');
+  if(!prev) return;
+  if(!clean) { prev.textContent = ''; return; }
+  // formato leggibile: es 39 333 123 4567
+  const it = clean.startsWith('39') && clean.length >= 11;
+  prev.textContent = it
+    ? `✓ Numero: +${clean.slice(0,2)} ${clean.slice(2,5)} ${clean.slice(5,8)} ${clean.slice(8)}`
+    : `Numero: +${clean} — assicurati di includere il prefisso 39`;
+}
+function testWhatsapp() {
+  const raw = document.getElementById('s_whatsapp').value;
+  const clean = sanitizePhone(raw);
+  if(!clean) { showToast('Inserisci prima il numero'); return; }
+  window.open(`https://wa.me/${clean}?text=Test+da+sito+Addò+Chef`, '_blank');
+}
 function saveSettings() {
   const newPass = document.getElementById('s_adminPass').value;
   settings = {
@@ -2166,7 +2200,7 @@ function saveSettings() {
     tag: document.getElementById('s_tag').value || settings.tag,
     heroImg: document.getElementById('s_heroImg').value,
     phone: document.getElementById('s_phone').value || settings.phone,
-    whatsapp: document.getElementById('s_whatsapp').value || settings.whatsapp,
+    whatsapp: sanitizePhone(document.getElementById('s_whatsapp').value) || settings.whatsapp,
     address: document.getElementById('s_address').value || settings.address,
     hours: document.getElementById('s_hours').value || settings.hours,
     about1: document.getElementById('s_about1').value || settings.about1,
