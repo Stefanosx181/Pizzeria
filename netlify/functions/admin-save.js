@@ -1,107 +1,98 @@
 /**
  * Netlify Function: admin-save
- * Riceve i dati dall'admin, verifica la password, scrive su Supabase
- * con la service_role key che vive solo qui, mai nel browser.
- *
- * Variabili d'ambiente da impostare su Netlify:
+ * Variabili d'ambiente su Netlify:
  *   SUPABASE_URL          = https://xxxxxxxx.supabase.co
- *   SUPABASE_SERVICE_KEY  = la service_role key (da Supabase > Settings > API Keys > Secret keys)
- *   ADMIN_PASSWORD        = password admin (deve corrispondere a quella nel sito)
+ *   SUPABASE_SERVICE_KEY  = service_role key
+ *   ADMIN_PASSWORD        = password admin del sito
  */
 
 const SB_URL = process.env.SUPABASE_URL;
 const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'admin123';
 
-const headers = {
+const sbHeaders = {
   'Content-Type': 'application/json',
   'apikey': SB_KEY,
   'Authorization': 'Bearer ' + SB_KEY,
-  'Prefer': 'resolution=merge-duplicates,return=representation'
+  'Prefer': 'resolution=merge-duplicates,return=minimal'
 };
 
 async function sbUpsert(table, data) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(data)
+    method: 'POST', headers: sbHeaders, body: JSON.stringify(data)
   });
-  if (!r.ok) throw new Error(`${table}: ${await r.text()}`);
-  return r.json();
+  if (!r.ok) throw new Error(`${table} upsert (${r.status}): ${await r.text()}`);
 }
 
 async function sbDelete(table, filter) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {
-    method: 'DELETE',
-    headers
+    method: 'DELETE', headers: sbHeaders
   });
-  if (!r.ok) throw new Error(`delete ${table}: ${await r.text()}`);
+  if (!r.ok) throw new Error(`${table} delete (${r.status}): ${await r.text()}`);
 }
 
 exports.handler = async (event) => {
-  // Solo POST
+  const cors = { 'Access-Control-Allow-Origin': '*' };
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: { ...cors, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type' }, body: '' };
+  }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: cors, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
-  }
+  try { body = JSON.parse(event.body); }
+  catch { return { statusCode: 400, headers: cors, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   const { password, settings, menu, igReels } = body;
 
-  // Verifica password admin
   if (!password || password !== ADMIN_PASS) {
-    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+    return { statusCode: 401, headers: cors, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
-
   if (!SB_URL || !SB_KEY) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Supabase not configured on server' }) };
+    return { statusCode: 500, headers: cors, body: JSON.stringify({ error: 'Env vars missing on server' }) };
   }
 
   try {
-    // 1. Salva impostazioni
     if (settings) {
-      const sRows = Object.entries(settings).map(([k, v]) => ({
-        key: k,
-        value: JSON.stringify(v)
-      }));
-      await sbUpsert('pz_settings', sRows);
+      const rows = Object.entries(settings)
+        .filter(([k]) => k !== 'igReels')
+        .map(([k, v]) => ({ key: k, value: JSON.stringify(v) }));
+      await sbUpsert('pz_settings', rows);
     }
 
-    // 2. Salva menù
-    if (menu) {
+    if (menu && Array.isArray(menu)) {
       await sbDelete('pz_menu', 'id=gte.0');
       if (menu.length > 0) {
-        const mRows = menu.map((item, i) => ({ ...item, sort_order: i }));
-        await sbUpsert('pz_menu', mRows);
-      }
-    }
-
-    // 3. Salva Instagram Reels
-    if (igReels !== undefined) {
-      await sbDelete('pz_ig_reels', 'id=gte.0');
-      if (igReels.length > 0) {
-        const iRows = igReels.map((r, i) => ({
-          url: r.url || '',
-          caption: r.caption || '',
-          thumb: r.thumb || '',
+        const rows = menu.map((item, i) => ({
+          id: item.id,
+          name: item.name || '',
+          cat: item.cat || '',
+          price: parseFloat(item.price) || 0,
+          description: item.description || item.desc || '',
+          img: item.img || '',
+          badge: item.badge || '',
           sort_order: i
         }));
-        await sbUpsert('pz_ig_reels', iRows);
+        await sbUpsert('pz_menu', rows);
       }
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ ok: true, saved: { settings: !!settings, menu: menu?.length, reels: igReels?.length } })
-    };
+    if (Array.isArray(igReels)) {
+      await sbDelete('pz_ig_reels', 'id=gte.0');
+      if (igReels.length > 0) {
+        const rows = igReels.map((r, i) => ({
+          url: r.url || '', caption: r.caption || '', thumb: r.thumb || '', sort_order: i
+        }));
+        await sbUpsert('pz_ig_reels', rows);
+      }
+    }
+
+    return { statusCode: 200, headers: cors, body: JSON.stringify({ ok: true }) };
 
   } catch (e) {
-    console.error('admin-save error:', e.message);
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    console.error('admin-save:', e.message);
+    return { statusCode: 500, headers: cors, body: JSON.stringify({ error: e.message }) };
   }
 };
