@@ -2137,6 +2137,7 @@ footer {
       </div>
     </div>
 
+
   </div><!-- /adm-body -->
 
   <!-- SAVE BAR -->
@@ -2295,13 +2296,103 @@ const DEFAULT_MENU = [
   { id:905, name:'Male Capo', cat:'Bibite', price:5.00, desc:'Birra artigianale locale', img:'https://images.unsplash.com/photo-1518176258769-f227c798150e?w=600&q=80', badge:'Artigianale' },
 ];
 
+// ============================================================
+// CONFIGURAZIONE SUPABASE
+// SB_URL e SB_KEY (anon/publishable) sono sicuri nel codice:
+// - servono SOLO per la lettura pubblica del menù
+// - la scrittura passa per /.netlify/functions/admin-save
+//   che usa la service_role key segreta (su Netlify env vars)
+// ============================================================
+const SB_URL = 'https://pbnejewyijvzdixfvwuo.supabase.co';
+const SB_KEY = 'sb_publishable_FryKinkJFJNa_Oyx_T_3zA_HwwNxGe-';  // ← incolla qui la Publishable key (per lettura)
+// ============================================================
+const SB_HEADERS = () => ({
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Prefer': 'return=representation'
+});
+const sbReady = () => !!(SB_URL && SB_KEY);
+
+async function sbGet(table, filter = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}&order=sort_order.asc,id.asc`, { headers: SB_HEADERS() });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbUpsert(table, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...SB_HEADERS(), 'Prefer': 'resolution=merge-duplicates,return=representation' },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbDelete(table, filter) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method: 'DELETE', headers: SB_HEADERS() });
+  if (!r.ok) throw new Error(await r.text());
+}
+
 // ============ STATE ============
-let settings = JSON.parse(localStorage.getItem('pz_settings') || '{}');
-settings = Object.assign({}, DEFAULT_SETTINGS, settings);
+let settings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('pz_settings') || '{}'));
 let menuItems = JSON.parse(localStorage.getItem('pz_menu') || JSON.stringify(DEFAULT_MENU));
 let cart = [];
 let currentFilter = 'tutti';
 let deliveryType = 'delivery';
+
+async function loadFromSupabase() {
+  if (!sbReady()) return false;
+  try {
+    // Load settings
+    const rows = await sbGet('pz_settings', 'select=key,value');
+    if (rows.length > 0) {
+      const obj = {};
+      rows.forEach(r => { try { obj[r.key] = JSON.parse(r.value); } catch { obj[r.key] = r.value; } });
+      settings = Object.assign({}, DEFAULT_SETTINGS, obj);
+      localStorage.setItem('pz_settings', JSON.stringify(settings));
+    }
+    // Load menu
+    const items = await sbGet('pz_menu', 'select=*');
+    if (items.length > 0) {
+      menuItems = items;
+      localStorage.setItem('pz_menu', JSON.stringify(menuItems));
+    }
+    // Load IG reels
+    const reels = await sbGet('pz_ig_reels', 'select=*');
+    if (reels.length > 0) {
+      igReels = reels.map(r => ({ url: r.url, caption: r.caption, thumb: r.thumb }));
+      igSave();
+    }
+    return true;
+  } catch(e) {
+    console.warn('Supabase load failed, using localStorage:', e.message);
+    return false;
+  }
+}
+
+async function saveToSupabase() {
+  // Scrittura sicura via Netlify Function — la service key non tocca mai il browser
+  try {
+    const r = await fetch('/.netlify/functions/admin-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: settings.adminPass,
+        settings,
+        menu: menuItems,
+        igReels
+      })
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || r.status);
+    }
+    return true;
+  } catch(e) {
+    console.warn('Save via function failed:', e.message);
+    return false;
+  }
+}
 
 // ============ CURSOR ============
 const dot = document.getElementById('cursorDot');
@@ -2316,8 +2407,10 @@ document.querySelectorAll('a,button').forEach(el => {
 });
 
 // ============ LOADER ============
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   igLoad();
+  // Try loading from Supabase first, fallback to localStorage
+  await loadFromSupabase();
   applySettings();
   renderMenu();
   setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 2200);
@@ -2930,7 +3023,7 @@ function testWhatsapp() {
   if(!clean) { showToast('Inserisci prima il numero'); return; }
   window.open(`https://wa.me/${clean}?text=Test+da+sito+Addò+Chef`, '_blank');
 }
-function saveSettings() {
+async function saveSettings() {
   const newPass = document.getElementById('s_adminPass').value;
   settings = {
     name: document.getElementById('s_name').value || settings.name,
@@ -2951,11 +3044,20 @@ function saveSettings() {
     igLink: document.getElementById('s_igLink').value,
     adminPass: newPass || settings.adminPass
   };
+  // Always save to localStorage as cache
   localStorage.setItem('pz_settings', JSON.stringify(settings));
   localStorage.setItem('pz_menu', JSON.stringify(menuItems));
   applySettings();
   renderMenu();
-  showToast('✓ Modifiche salvate!');
+  admRefreshStats();
+  // Also push to Supabase if configured
+  if (sbReady()) {
+    showToast('Salvataggio in corso…');
+    const ok = await saveToSupabase();
+    showToast(ok ? '✓ Salvato su database!' : '✓ Salvato localmente (DB non raggiungibile)');
+  } else {
+    showToast('✓ Salvato! Configura Supabase per sincronizzare su tutti i dispositivi.');
+  }
 }
 function renderAdminMenuList() {
   const el = document.getElementById('adminMenuList');
