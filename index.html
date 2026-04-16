@@ -852,16 +852,303 @@ footer {
   .footer-grid { grid-template-columns: 1fr; }
 }
 
-/* ============ ADMIN PANEL — Professional Redesign ============ */
+/* ============ ADMIN PANEL ============ */
 #admin-overlay {
   position: fixed; inset: 0;
-  background: var(--bg);
+  background: #0e0c0a;
   z-index: 800;
   opacity: 0; visibility: hidden;
   transition: opacity 0.4s, visibility 0.4s;
-  display: flex; flex-direction: column;
+  overflow: hidden;
 }
 #admin-overlay.open { opacity: 1; visibility: visible; }
+
+.adm-shell {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+}
+
+/* TOP BAR */
+.adm-topbar {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.75rem;
+  background: #141008;
+  border-bottom: 1px solid rgba(200,146,42,0.15);
+}
+.adm-topbar-logo {
+  font-family: var(--font-disp); font-size: 1.1rem; font-weight: 400;
+  letter-spacing: 0.2em; color: var(--cream); white-space: nowrap;
+}
+.adm-topbar-logo span { color: var(--gold); }
+.adm-topbar-logo small { font-family: var(--font-body); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; margin-left: 0.5rem; }
+.adm-close-btn {
+  background: none; border: 1px solid rgba(200,146,42,0.2);
+  color: var(--cream2); padding: 0.4rem 1rem;
+  font-family: var(--font-body); font-size: 0.68rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: none; transition: all 0.25s; white-space: nowrap;
+}
+.adm-close-btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* TAB BAR */
+.adm-tabbar {
+  flex-shrink: 0;
+  display: flex; align-items: stretch;
+  background: #141008;
+  border-bottom: 1px solid rgba(200,146,42,0.12);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.adm-tabbar::-webkit-scrollbar { display: none; }
+.adm-tab-btn {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 1.25rem;
+  height: 44px;
+  background: none; border: none;
+  font-family: var(--font-body); font-size: 0.72rem;
+  font-weight: 300; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); cursor: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s; white-space: nowrap; flex-shrink: 0;
+}
+.adm-tab-btn:hover { color: var(--cream2); }
+.adm-tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.adm-tab-pip {
+  background: var(--gold); color: #0e0c0a;
+  font-size: 0.6rem; font-weight: 600;
+  padding: 0.1rem 0.45rem; border-radius: 10px; line-height: 1.4;
+}
+
+/* CONTENT SCROLL AREA */
+.adm-body {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  background: #0e0c0a;
+}
+.adm-tab { display: none; }
+.adm-tab.active { display: block; }
+.adm-content {
+  max-width: 780px; margin: 0 auto;
+  padding: 2.5rem 2rem 6rem;
+}
+.adm-page-title {
+  font-family: var(--font-disp); font-size: 1.9rem; font-weight: 300;
+  margin-bottom: 0.3rem; color: var(--cream);
+}
+.adm-page-sub {
+  font-size: 0.78rem; color: var(--muted); font-weight: 200;
+  margin-bottom: 2.5rem;
+}
+
+/* STATS ROW */
+.adm-stats-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.adm-stat-chip {
+  background: #141008; border: 1px solid rgba(200,146,42,0.12);
+  padding: 1rem 1.5rem; flex: 1; min-width: 110px;
+}
+.adm-stat-num {
+  font-family: var(--font-disp); font-size: 2.2rem; font-weight: 300;
+  color: var(--gold); line-height: 1;
+}
+.adm-stat-label {
+  font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); margin-top: 0.35rem;
+}
+
+/* CARD */
+.adm-card {
+  background: #141008;
+  border: 1px solid rgba(200,146,42,0.12);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.adm-card-title {
+  font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(200,146,42,0.1);
+}
+.adm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.adm-grid-1 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.adm-fg { display: flex; flex-direction: column; }
+
+/* FORM INPUTS */
+.adm-label {
+  font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(200,184,152,0.6); margin-bottom: 0.4rem; display: block;
+}
+.adm-input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(200,146,42,0.12);
+  border-bottom: 1px solid rgba(200,146,42,0.25);
+  color: var(--cream);
+  padding: 0.7rem 0.85rem;
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 200;
+  outline: none; transition: border-color 0.25s; line-height: 1.5;
+}
+.adm-input:focus { border-color: var(--gold); background: rgba(200,146,42,0.04); }
+.adm-textarea { height: 80px; resize: vertical; }
+
+/* UPLOAD */
+.adm-upload-row {
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.adm-upload-thumb {
+  width: 50px; height: 50px; object-fit: cover;
+  border: 1px solid rgba(200,146,42,0.2); display: none; flex-shrink: 0;
+}
+.adm-upload-thumb.show { display: block; }
+.adm-btn-upload {
+  background: none; border: 1px solid rgba(200,146,42,0.25);
+  color: var(--cream2); padding: 0.45rem 0.85rem;
+  font-family: var(--font-body); font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: none; transition: all 0.2s; white-space: nowrap;
+}
+.adm-btn-upload:hover { background: var(--gold); color: #0e0c0a; border-color: var(--gold); }
+.adm-btn-clear {
+  background: none; border: none; color: var(--muted);
+  font-size: 0.65rem; cursor: none; letter-spacing: 0.08em;
+  text-transform: uppercase; transition: color 0.2s; padding: 0;
+}
+.adm-btn-clear:hover { color: var(--red); }
+
+/* WA */
+.adm-wa-row { display: flex; gap: 0.5rem; align-items: flex-start; }
+.adm-wa-preview { font-size: 0.67rem; color: var(--gold); margin-top: 0.3rem; min-height: 1rem; }
+.adm-btn-test {
+  background: none; border: 1px solid rgba(200,146,42,0.25);
+  color: var(--cream2); padding: 0.7rem 0.85rem;
+  font-family: var(--font-body); font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: none; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.adm-btn-test:hover { border-color: var(--gold); color: var(--gold); }
+
+/* MENU LIST */
+.adm-menu-list { display: flex; flex-direction: column; gap: 1px; }
+.adm-menu-item {
+  display: grid; grid-template-columns: 44px 1fr auto;
+  align-items: center; gap: 1rem;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(200,146,42,0.07);
+  padding: 0.85rem 1rem;
+  transition: background 0.2s;
+}
+.adm-menu-item:hover { background: rgba(200,146,42,0.04); }
+.adm-item-thumb {
+  width: 44px; height: 44px; object-fit: cover;
+  border: 1px solid rgba(200,146,42,0.15); background: #1c1510;
+}
+.adm-item-name {
+  font-family: var(--font-disp); font-size: 1rem; font-weight: 400;
+  color: var(--cream); line-height: 1.2;
+}
+.adm-item-meta { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; }
+.adm-item-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+.adm-btn-sm {
+  background: none; border: 1px solid rgba(200,146,42,0.15);
+  color: var(--cream2); padding: 0.3rem 0.6rem;
+  font-family: var(--font-body); font-size: 0.6rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: none; transition: all 0.2s;
+}
+.adm-btn-sm:hover { background: var(--gold); color: #0e0c0a; border-color: var(--gold); }
+.adm-btn-sm.del:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* ADD FORM */
+.adm-add-form {
+  background: rgba(200,146,42,0.03);
+  border: 1px dashed rgba(200,146,42,0.2);
+  padding: 1.5rem; margin-top: 1rem;
+}
+.adm-add-form-title {
+  font-family: var(--font-disp); font-size: 1.1rem; font-weight: 300;
+  margin-bottom: 1.25rem; color: var(--cream);
+}
+
+/* IG ENTRIES */
+.adm-ig-entry {
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(200,146,42,0.1);
+  padding: 1.25rem; margin-bottom: 2px;
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.adm-ig-num {
+  font-family: var(--font-disp); font-size: 1.8rem; font-weight: 300;
+  color: rgba(200,146,42,0.25); flex-shrink: 0; line-height: 1;
+  padding-top: 4px; min-width: 28px; text-align: center;
+}
+
+/* INFO BOX */
+.adm-info {
+  background: rgba(200,146,42,0.05);
+  border-left: 2px solid rgba(200,146,42,0.3);
+  padding: 0.9rem 1.1rem;
+  font-size: 0.78rem; color: var(--cream2);
+  line-height: 1.8; margin-bottom: 1.25rem;
+}
+.adm-info strong { color: var(--cream); }
+.adm-info code { color: var(--gold); font-family: monospace; font-size: 0.82rem; }
+
+/* SAVE BAR — sticky bottom */
+.adm-savebar {
+  flex-shrink: 0;
+  background: #141008;
+  border-top: 1px solid rgba(200,146,42,0.12);
+  padding: 0.9rem 2rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.adm-savebar-hint { font-size: 0.72rem; color: var(--muted); }
+.adm-save-all {
+  background: var(--gold); color: #0e0c0a;
+  border: none; padding: 0.75rem 2.5rem;
+  font-family: var(--font-body); font-size: 0.72rem;
+  font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: none; transition: all 0.25s; white-space: nowrap;
+}
+.adm-save-all:hover { background: var(--gold-light); }
+
+/* TOAST */
+.admin-toast {
+  position: fixed; bottom: 5rem; right: 2rem;
+  background: #141008; color: var(--cream);
+  border: 1px solid rgba(200,146,42,0.3);
+  border-left: 3px solid var(--gold);
+  padding: 0.85rem 1.4rem;
+  font-size: 0.75rem; letter-spacing: 0.06em;
+  z-index: 9100;
+  transform: translateY(60px); opacity: 0;
+  transition: all 0.35s var(--ease);
+}
+.admin-toast.show { transform: translateY(0); opacity: 1; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .adm-content { padding: 1.5rem 1rem 5rem; }
+  .adm-grid-2 { grid-template-columns: 1fr; }
+  .adm-stats-row { flex-direction: column; }
+  .adm-topbar { padding: 0 1rem; }
+}
+
+/* COMPAT SHIMS for old ids still used in JS */
+.admin-btn-sm { display: none !important; }
+.admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.admin-full { grid-template-columns: 1fr; }
+.upload-area { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.upload-btn { background: none; border: 1px solid var(--border2); color: var(--cream2); padding: 0.5rem 1rem; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: none; transition: all 0.3s; }
+.upload-btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+.upload-preview { width: 48px; height: 48px; object-fit: cover; border: 1px solid var(--border); display: none; }
+.upload-preview.show { display: block; }
+.upload-clear { background: none; border: none; color: var(--muted); font-size: 0.7rem; cursor: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.3s; }
+.upload-clear:hover { color: var(--red); }
+.ig-admin-entry { background: rgba(255,255,255,0.015); border: 1px solid rgba(200,146,42,0.1); padding: 1.25rem; margin-bottom: 2px; display: flex; gap: 1rem; align-items: flex-start; }
+.ig-entry-num { font-family: var(--font-disp); font-size: 1.5rem; color: var(--muted); flex-shrink: 0; line-height: 1; padding-top: 8px; }
+.admin-save-btn { background: var(--gold); color: var(--bg); border: none; padding: 1rem 3rem; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; cursor: none; transition: all 0.3s; }
+.admin-save-btn:hover { background: var(--gold-light); }
 
 /* TOP BAR */
 .adm-topbar {
@@ -1635,325 +1922,231 @@ footer {
 
 <!-- ADMIN PANEL -->
 <div id="admin-overlay">
+ <div class="adm-shell">
 
   <!-- TOP BAR -->
   <div class="adm-topbar">
-    <div class="adm-topbar-logo">Addò <span>Chef</span> &nbsp;<span style="font-size:0.8rem;opacity:0.4;letter-spacing:0.1em;">/ Admin</span></div>
-    <div class="adm-topbar-right">
-      <span class="adm-badge">Pannello di Gestione</span>
-      <button class="adm-close-btn" onclick="closeAdmin()">Esci ✕</button>
+    <div class="adm-topbar-logo">Addò <span>Chef</span><small>/ Pannello Admin</small></div>
+    <button class="adm-close-btn" onclick="closeAdmin()">Esci ✕</button>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="adm-tabbar">
+    <button class="adm-tab-btn active" onclick="admTab('generale',this)">Generale</button>
+    <button class="adm-tab-btn" onclick="admTab('contatti',this)">Contatti</button>
+    <button class="adm-tab-btn" onclick="admTab('contenuti',this)">Contenuti</button>
+    <button class="adm-tab-btn" onclick="admTab('menu',this)">Menù <span class="adm-tab-pip" id="menuCount">0</span></button>
+    <button class="adm-tab-btn" onclick="admTab('instagram',this)">Instagram</button>
+    <button class="adm-tab-btn" onclick="admTab('sicurezza',this)">Sicurezza</button>
+  </div>
+
+  <!-- SCROLLABLE BODY -->
+  <div class="adm-body">
+
+    <!-- GENERALE -->
+    <div class="adm-tab active" id="adm-tab-generale">
+      <div class="adm-content">
+        <div class="adm-page-title">Impostazioni Generali</div>
+        <div class="adm-page-sub">Testi e immagini della homepage</div>
+
+        <div class="adm-stats-row">
+          <div class="adm-stat-chip"><div class="adm-stat-num" id="st_menu">—</div><div class="adm-stat-label">Voci menù</div></div>
+          <div class="adm-stat-chip"><div class="adm-stat-num" id="st_ig">—</div><div class="adm-stat-label">Reel Instagram</div></div>
+          <div class="adm-stat-chip"><div class="adm-stat-num" id="st_foto">—</div><div class="adm-stat-label">Foto caricate</div></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Identità del sito</div>
+          <div class="adm-grid-2">
+            <div class="adm-fg"><label class="adm-label">Nome Pizzeria</label><input class="adm-input" id="s_name" type="text"></div>
+            <div class="adm-fg"><label class="adm-label">Tag / Città</label><input class="adm-input" id="s_tag" type="text"></div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Hero — Testi</div>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div class="adm-fg"><label class="adm-label">Titolo principale (supporta &lt;em&gt; e &lt;br&gt;)</label><input class="adm-input" id="s_tagline" type="text"></div>
+            <div class="adm-fg"><label class="adm-label">Sottotitolo</label><input class="adm-input" id="s_sub" type="text"></div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Hero — Immagine di sfondo</div>
+          <div class="adm-upload-row">
+            <button class="adm-btn-upload" onclick="uploadImage('pz_img_hero',(d)=>{document.getElementById('prev_hero').src=d;document.getElementById('prev_hero').classList.add('show');admRefreshStats();})">Carica dal PC</button>
+            <img id="prev_hero" class="adm-upload-thumb" src="" alt="">
+            <button class="adm-btn-clear" onclick="clearImage('pz_img_hero','prev_hero');admRefreshStats()">Rimuovi</button>
+          </div>
+          <label class="adm-label" style="margin-top:0.75rem;">Oppure URL esterno</label>
+          <input class="adm-input" id="s_heroImg" type="url" placeholder="https://...">
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Citazione parallax</div>
+          <div class="adm-grid-2">
+            <div class="adm-fg"><label class="adm-label">Testo citazione</label><input class="adm-input" id="s_quote" type="text"></div>
+            <div class="adm-fg"><label class="adm-label">Firma / Autore</label><input class="adm-input" id="s_quoteAuthor" type="text"></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- CONTATTI -->
+    <div class="adm-tab" id="adm-tab-contatti">
+      <div class="adm-content">
+        <div class="adm-page-title">Contatti & Orari</div>
+        <div class="adm-page-sub">Informazioni visualizzate nel footer e nella sezione ordini</div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Recapiti</div>
+          <div class="adm-grid-2" style="margin-bottom:1rem;">
+            <div class="adm-fg"><label class="adm-label">Telefono</label><input class="adm-input" id="s_phone" type="text"></div>
+            <div class="adm-fg"><label class="adm-label">Indirizzo</label><input class="adm-input" id="s_address" type="text"></div>
+          </div>
+          <div class="adm-fg"><label class="adm-label">Orari di apertura</label><input class="adm-input" id="s_hours" type="text" placeholder="Mar–Dom: 18:00–23:30"></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">WhatsApp ordini</div>
+          <label class="adm-label">Numero con prefisso internazionale — es. 393331234567</label>
+          <div class="adm-wa-row">
+            <div style="flex:1;">
+              <input class="adm-input" id="s_whatsapp" type="text" placeholder="393331234567" oninput="updateWaPreview()">
+              <div class="adm-wa-preview" id="waPreview"></div>
+            </div>
+            <button class="adm-btn-test" onclick="testWhatsapp()">Test ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENUTI -->
+    <div class="adm-tab" id="adm-tab-contenuti">
+      <div class="adm-content">
+        <div class="adm-page-title">Sezione Chi Siamo</div>
+        <div class="adm-page-sub">Testi e immagine della sezione storia</div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Testi</div>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div class="adm-fg"><label class="adm-label">Paragrafo 1</label><textarea class="adm-input adm-textarea" id="s_about1"></textarea></div>
+            <div class="adm-fg"><label class="adm-label">Paragrafo 2</label><textarea class="adm-input adm-textarea" id="s_about2"></textarea></div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Immagine</div>
+          <div class="adm-upload-row">
+            <button class="adm-btn-upload" onclick="uploadImage('pz_img_about',(d)=>{document.getElementById('prev_about').src=d;document.getElementById('prev_about').classList.add('show');admRefreshStats();})">Carica dal PC</button>
+            <img id="prev_about" class="adm-upload-thumb" src="" alt="">
+            <button class="adm-btn-clear" onclick="clearImage('pz_img_about','prev_about');admRefreshStats()">Rimuovi</button>
+          </div>
+          <label class="adm-label" style="margin-top:0.75rem;">Oppure URL esterno</label>
+          <input class="adm-input" id="s_aboutImg" type="url" placeholder="https://...">
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="adm-tab" id="adm-tab-menu">
+      <div class="adm-content">
+        <div class="adm-page-title">Gestione Menù</div>
+        <div class="adm-page-sub">Aggiungi, modifica o rimuovi voci dal menù</div>
+
+        <div class="adm-card" style="padding:0;overflow:hidden;">
+          <div style="padding:1rem 1.5rem;border-bottom:1px solid rgba(200,146,42,0.1);display:flex;align-items:center;justify-content:space-between;">
+            <span class="adm-card-title" style="margin:0;padding:0;border:none;">Voci del Menù</span>
+            <span style="font-size:0.7rem;color:var(--muted);" id="menuCountLabel">0 voci</span>
+          </div>
+          <div class="adm-menu-list" id="adminMenuList" style="padding:0.5rem 0.75rem;"></div>
+        </div>
+
+        <div class="adm-add-form">
+          <div class="adm-add-form-title">Aggiungi nuova voce</div>
+          <div class="adm-grid-2" style="margin-bottom:1rem;">
+            <div class="adm-fg"><label class="adm-label">Nome</label><input class="adm-input" id="new_name" type="text" placeholder="Margherita"></div>
+            <div class="adm-fg"><label class="adm-label">Categoria</label><input class="adm-input" id="new_cat" type="text" placeholder="Le Classiche"></div>
+          </div>
+          <div class="adm-grid-2" style="margin-bottom:1rem;">
+            <div class="adm-fg"><label class="adm-label">Prezzo (€)</label><input class="adm-input" id="new_price" type="number" step="0.5" placeholder="9.00"></div>
+            <div class="adm-fg"><label class="adm-label">Badge (opzionale)</label><input class="adm-input" id="new_badge" type="text" placeholder="Chef's Choice"></div>
+          </div>
+          <div class="adm-fg" style="margin-bottom:1rem;"><label class="adm-label">Descrizione ingredienti</label><textarea class="adm-input adm-textarea" id="new_desc" placeholder="Ingredienti e note..."></textarea></div>
+          <div class="adm-fg" style="margin-bottom:1.25rem;">
+            <label class="adm-label">Foto del piatto</label>
+            <div class="adm-upload-row" style="margin-bottom:0.5rem;">
+              <button class="adm-btn-upload" onclick="uploadImage('pz_img_new',(d)=>{document.getElementById('prev_new').src=d;document.getElementById('prev_new').classList.add('show');document.getElementById('new_img').value='';})">Carica dal PC</button>
+              <img id="prev_new" class="adm-upload-thumb" src="" alt="">
+              <button class="adm-btn-clear" onclick="clearImage('pz_img_new','prev_new')">Rimuovi</button>
+            </div>
+            <input class="adm-input" id="new_img" type="url" placeholder="Oppure URL immagine">
+          </div>
+          <button class="adm-save-all" onclick="addMenuItem()" style="padding:0.75rem 2rem;">Aggiungi al Menù</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTAGRAM -->
+    <div class="adm-tab" id="adm-tab-instagram">
+      <div class="adm-content">
+        <div class="adm-page-title">Instagram</div>
+        <div class="adm-page-sub">Configura il profilo e i Reel da mostrare sul sito</div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Profilo</div>
+          <div class="adm-grid-2">
+            <div class="adm-fg"><label class="adm-label">Username (senza @)</label><input class="adm-input" id="s_igHandle" type="text" placeholder="addochef"></div>
+            <div class="adm-fg"><label class="adm-label">Link profilo</label><input class="adm-input" id="s_igLink" type="url" placeholder="https://instagram.com/addochef"></div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Reel da mostrare</div>
+          <div class="adm-info">
+            Apri il Reel su Instagram → tocca <strong>…</strong> → <strong>Copia link</strong> → incollalo qui. Il video verrà incorporato con il player nativo. Max 8 Reel.
+          </div>
+          <div id="igAdminEntries"></div>
+          <button class="adm-btn-upload" onclick="addIgEntry()" style="margin-top:0.75rem;">+ Aggiungi Reel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SICUREZZA -->
+    <div class="adm-tab" id="adm-tab-sicurezza">
+      <div class="adm-content">
+        <div class="adm-page-title">Sicurezza</div>
+        <div class="adm-page-sub">Gestione accesso all'area amministrazione</div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Password Admin</div>
+          <div class="adm-info">Lascia vuoto per non cambiare la password attuale. Annotala in un posto sicuro.</div>
+          <div class="adm-fg"><label class="adm-label">Nuova password</label><input class="adm-input" id="s_adminPass" type="password" placeholder="Nuova password…"></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Come accedere</div>
+          <div class="adm-info">Clicca <strong>3 volte</strong> rapidamente sulla parola <strong>"gestione"</strong> nel footer del sito. Non è visibile ai clienti.</div>
+        </div>
+
+        <div class="adm-card" style="border-color:rgba(139,30,30,0.3);">
+          <div class="adm-card-title" style="color:#c0524a;border-color:rgba(139,30,30,0.15);">Zona Pericolosa</div>
+          <p style="font-size:0.8rem;color:var(--muted);line-height:1.7;margin-bottom:1rem;">Resetta tutto ai valori predefiniti. Azione irreversibile.</p>
+          <button class="adm-btn-sm del" onclick="if(confirm('Sei sicuro? Tutti i dati personalizzati verranno persi.'))resetAllData()">Reset completo</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /adm-body -->
+
+  <!-- SAVE BAR -->
+  <div class="adm-savebar">
+    <span class="adm-savebar-hint">Le modifiche vengono salvate nel browser — ricorda di fare il push su Git per aggiornarle online.</span>
+    <button class="adm-save-all" onclick="saveSettings()">Salva modifiche</button>
   </div>
 
-  <!-- LAYOUT -->
-  <div class="adm-layout">
-
-    <!-- SIDEBAR -->
-    <aside class="adm-sidebar">
-      <nav class="adm-nav">
-        <div class="adm-nav-section">Sito</div>
-        <button class="adm-nav-item active" onclick="admTab('generale',this)">
-          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-          Generale
-        </button>
-        <button class="adm-nav-item" onclick="admTab('contatti',this)">
-          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 6a5 5 0 0110 0"/></svg>
-          Contatti
-        </button>
-        <button class="adm-nav-item" onclick="admTab('contenuti',this)">
-          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/></svg>
-          Contenuti
-        </button>
-        <div class="adm-nav-section" style="margin-top:1rem;">Menù</div>
-        <button class="adm-nav-item" onclick="admTab('menu',this)">
-          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-          Gestione Menù <span class="adm-nav-badge" id="menuCount">0</span>
-        </button>
-        <div class="adm-nav-section" style="margin-top:1rem;">Social</div>
-        <button class="adm-nav-item" onclick="admTab('instagram',this)">
-          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="3"/><circle cx="8" cy="8" r="3"/><circle cx="11.5" cy="4.5" r="0.5" fill="currentColor"/></svg>
-          Instagram
-        </button>
-        <div class="adm-nav-section" style="margin-top:1rem;">Account</div>
-        <button class="adm-nav-item" onclick="admTab('sicurezza',this)">
-          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l5 2v4c0 3-2.5 5.5-5 6-2.5-.5-5-3-5-6V4l5-2z"/></svg>
-          Sicurezza
-        </button>
-      </nav>
-      <div class="adm-sidebar-footer">
-        <button class="adm-save-all" onclick="saveSettings()">Salva modifiche</button>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="adm-main">
-
-      <!-- TAB: GENERALE -->
-      <div class="adm-tab active" id="adm-tab-generale">
-        <div class="adm-content">
-          <div class="adm-page-title">Impostazioni Generali</div>
-          <div class="adm-page-sub">Testi e immagini della homepage</div>
-
-          <div class="adm-stats-row" id="admStatsRow">
-            <div class="adm-stat-chip"><div class="adm-stat-num" id="st_menu">—</div><div class="adm-stat-label">Voci menù</div></div>
-            <div class="adm-stat-chip"><div class="adm-stat-num" id="st_ig">—</div><div class="adm-stat-label">Reel Instagram</div></div>
-            <div class="adm-stat-chip"><div class="adm-stat-num" id="st_foto">—</div><div class="adm-stat-label">Foto caricate</div></div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Identità del sito</div>
-            <div class="adm-grid-2">
-              <div class="adm-fg">
-                <label class="adm-label">Nome Pizzeria</label>
-                <input class="adm-input" id="s_name" type="text">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Tag / Città</label>
-                <input class="adm-input" id="s_tag" type="text">
-              </div>
-            </div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Hero — Testi</div>
-            <div class="adm-grid-1" style="gap:1rem;">
-              <div class="adm-fg">
-                <label class="adm-label">Titolo principale (supporta &lt;em&gt; e &lt;br&gt;)</label>
-                <input class="adm-input" id="s_tagline" type="text">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Sottotitolo</label>
-                <input class="adm-input" id="s_sub" type="text">
-              </div>
-            </div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Hero — Immagine di sfondo</div>
-            <div class="adm-upload-row">
-              <button class="adm-btn-upload" onclick="uploadImage('pz_img_hero', (d)=>{ document.getElementById('prev_hero').src=d; document.getElementById('prev_hero').classList.add('show'); admRefreshStats(); })">Carica dal PC</button>
-              <img id="prev_hero" class="adm-upload-thumb" src="" alt="preview">
-              <button class="adm-btn-clear" onclick="clearImage('pz_img_hero','prev_hero');admRefreshStats()">Rimuovi</button>
-            </div>
-            <label class="adm-label" style="margin-top:0.75rem;">Oppure URL esterno</label>
-            <input class="adm-input" id="s_heroImg" type="url" placeholder="https://...">
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Citazione parallax</div>
-            <div class="adm-grid-2">
-              <div class="adm-fg">
-                <label class="adm-label">Testo citazione</label>
-                <input class="adm-input" id="s_quote" type="text">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Firma / Autore</label>
-                <input class="adm-input" id="s_quoteAuthor" type="text">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: CONTATTI -->
-      <div class="adm-tab" id="adm-tab-contatti">
-        <div class="adm-content">
-          <div class="adm-page-title">Contatti & Orari</div>
-          <div class="adm-page-sub">Informazioni di contatto visualizzate nel footer e nella sezione ordini</div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Recapiti</div>
-            <div class="adm-grid-2">
-              <div class="adm-fg">
-                <label class="adm-label">Telefono</label>
-                <input class="adm-input" id="s_phone" type="text" placeholder="+39 081 000 0000">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Indirizzo</label>
-                <input class="adm-input" id="s_address" type="text" placeholder="Via Roma 1, Mercogliano">
-              </div>
-            </div>
-            <div style="margin-top:1rem;">
-              <label class="adm-label">Orari di apertura</label>
-              <input class="adm-input" id="s_hours" type="text" placeholder="Mar–Dom: 18:00–23:30">
-            </div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">WhatsApp ordini</div>
-            <label class="adm-label">Numero con prefisso internazionale (es. 393331234567)</label>
-            <div class="adm-wa-row">
-              <div style="flex:1">
-                <input class="adm-input" id="s_whatsapp" type="text" placeholder="393331234567" oninput="updateWaPreview()">
-                <div class="adm-wa-preview" id="waPreview"></div>
-              </div>
-              <button class="adm-btn-test" onclick="testWhatsapp()">Test ↗</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: CONTENUTI -->
-      <div class="adm-tab" id="adm-tab-contenuti">
-        <div class="adm-content">
-          <div class="adm-page-title">Sezione Chi Siamo</div>
-          <div class="adm-page-sub">Testi e immagine della sezione storia/chi siamo</div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Testi</div>
-            <div style="display:flex;flex-direction:column;gap:1rem;">
-              <div class="adm-fg">
-                <label class="adm-label">Paragrafo 1</label>
-                <textarea class="adm-input adm-textarea" id="s_about1"></textarea>
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Paragrafo 2</label>
-                <textarea class="adm-input adm-textarea" id="s_about2"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Immagine</div>
-            <div class="adm-upload-row">
-              <button class="adm-btn-upload" onclick="uploadImage('pz_img_about', (d)=>{ document.getElementById('prev_about').src=d; document.getElementById('prev_about').classList.add('show'); admRefreshStats(); })">Carica dal PC</button>
-              <img id="prev_about" class="adm-upload-thumb" src="" alt="preview">
-              <button class="adm-btn-clear" onclick="clearImage('pz_img_about','prev_about');admRefreshStats()">Rimuovi</button>
-            </div>
-            <label class="adm-label" style="margin-top:0.75rem;">Oppure URL esterno</label>
-            <input class="adm-input" id="s_aboutImg" type="url" placeholder="https://...">
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: MENU -->
-      <div class="adm-tab" id="adm-tab-menu">
-        <div class="adm-content">
-          <div class="adm-page-title">Gestione Menù</div>
-          <div class="adm-page-sub">Aggiungi, modifica o rimuovi voci dal menù</div>
-
-          <div class="adm-card" style="padding:0;overflow:hidden;">
-            <div style="padding:1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-              <span class="adm-card-title" style="margin-bottom:0;border:none;padding:0;">Voci del Menù</span>
-              <span style="font-size:0.72rem;color:var(--muted);" id="menuCountLabel">0 voci</span>
-            </div>
-            <div class="adm-menu-list" id="adminMenuList" style="padding:0.5rem 0.75rem;"></div>
-          </div>
-
-          <div class="adm-add-form">
-            <div class="adm-add-form-title">+ Aggiungi nuova voce</div>
-            <div class="adm-grid-2" style="margin-bottom:1rem;">
-              <div class="adm-fg">
-                <label class="adm-label">Nome</label>
-                <input class="adm-input" id="new_name" type="text" placeholder="Margherita">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Categoria</label>
-                <input class="adm-input" id="new_cat" type="text" placeholder="Le Classiche">
-              </div>
-            </div>
-            <div class="adm-grid-2" style="margin-bottom:1rem;">
-              <div class="adm-fg">
-                <label class="adm-label">Prezzo (€)</label>
-                <input class="adm-input" id="new_price" type="number" step="0.5" placeholder="9.00">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Badge (opzionale)</label>
-                <input class="adm-input" id="new_badge" type="text" placeholder="Chef's Choice">
-              </div>
-            </div>
-            <div style="margin-bottom:1rem;">
-              <label class="adm-label">Descrizione ingredienti</label>
-              <textarea class="adm-input adm-textarea" id="new_desc" placeholder="Ingredienti e note..."></textarea>
-            </div>
-            <div style="margin-bottom:1.25rem;">
-              <label class="adm-label">Foto del piatto</label>
-              <div class="adm-upload-row" style="margin-bottom:0.5rem;">
-                <button class="adm-btn-upload" onclick="uploadImage('pz_img_new', (d)=>{ document.getElementById('prev_new').src=d; document.getElementById('prev_new').classList.add('show'); document.getElementById('new_img').value=''; })">Carica dal PC</button>
-                <img id="prev_new" class="adm-upload-thumb" src="" alt="">
-                <button class="adm-btn-clear" onclick="clearImage('pz_img_new','prev_new')">Rimuovi</button>
-              </div>
-              <input class="adm-input" id="new_img" type="url" placeholder="Oppure URL immagine">
-            </div>
-            <button class="adm-save-all" onclick="addMenuItem()" style="width:auto;padding:0.8rem 2rem;">Aggiungi al Menù</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: INSTAGRAM -->
-      <div class="adm-tab" id="adm-tab-instagram">
-        <div class="adm-content">
-          <div class="adm-page-title">Instagram</div>
-          <div class="adm-page-sub">Configura il profilo e aggiungi i Reel da mostrare sul sito</div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Profilo Instagram</div>
-            <div class="adm-grid-2">
-              <div class="adm-fg">
-                <label class="adm-label">Username (senza @)</label>
-                <input class="adm-input" id="s_igHandle" type="text" placeholder="addochef">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Link profilo</label>
-                <input class="adm-input" id="s_igLink" type="url" placeholder="https://instagram.com/addochef">
-              </div>
-            </div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Reel da mostrare</div>
-            <div class="adm-info">
-              Apri il Reel su Instagram → tocca <strong>…</strong> → <strong>Copia link</strong> → incollalo qui sotto.<br>
-              Il Reel verrà incorporato con il player nativo di Instagram. Max 8 Reel.
-            </div>
-            <div id="igAdminEntries"></div>
-            <button class="adm-btn-upload" onclick="addIgEntry()" style="margin-top:0.75rem;">+ Aggiungi Reel</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: SICUREZZA -->
-      <div class="adm-tab" id="adm-tab-sicurezza">
-        <div class="adm-content">
-          <div class="adm-page-title">Sicurezza</div>
-          <div class="adm-page-sub">Gestione accesso all'area amministrazione</div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Password Admin</div>
-            <div class="adm-info">
-              La password protegge l'accesso a questo pannello. Cambiala con qualcosa di sicuro e annotala in un posto sicuro — se la perdi dovrai modificarla direttamente nel codice sorgente.
-            </div>
-            <div class="adm-grid-2">
-              <div class="adm-fg">
-                <label class="adm-label">Nuova password</label>
-                <input class="adm-input" id="s_adminPass" type="password" placeholder="Lascia vuoto per non cambiare">
-              </div>
-              <div class="adm-fg">
-                <label class="adm-label">Password attuale</label>
-                <input class="adm-input" type="password" placeholder="••••••••" disabled style="opacity:0.4;">
-              </div>
-            </div>
-          </div>
-
-          <div class="adm-card">
-            <div class="adm-card-title">Accesso nascosto</div>
-            <div class="adm-info">
-              L'admin si apre cliccando <strong>3 volte rapidamente</strong> sulla parola <strong>"gestione"</strong> nel footer del sito. Non è visibile ai visitatori.
-            </div>
-          </div>
-
-          <div class="adm-card" style="border-color:rgba(139,30,30,0.3);">
-            <div class="adm-card-title" style="color:var(--red);border-color:rgba(139,30,30,0.2);">Zona Pericolosa</div>
-            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">Resetta tutte le impostazioni e il menù ai valori predefiniti. Questa azione non è reversibile.</p>
-            <button class="adm-btn-sm del" onclick="if(confirm('Sei sicuro? Tutti i dati personalizzati verranno persi.'))resetAllData()">Reset completo</button>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-</div>
-
+ </div><!-- /adm-shell -->
+</div><!-- /admin-overlay -->
 <!-- ORDER CONFIRMED MODAL -->
 <div id="order-confirmed" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:700;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;visibility:hidden;transition:opacity 0.5s,visibility 0.5s;">
   <div style="background:var(--bg2);border:1px solid var(--border2);padding:3rem 2.5rem;width:min(480px,100%);text-align:center;transform:translateY(30px);transition:transform 0.5s var(--ease);" id="confirmedBox">
