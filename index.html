@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="page-title">Addochef — Pizzeria</title>
+<title id="page-title">Fuoco — Pizzeria</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Outfit:wght@200;300;400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
   --bg: #0C0A08;
@@ -851,90 +852,322 @@ footer {
   .footer-grid { grid-template-columns: 1fr; }
 }
 
-/* ADMIN PANEL */
+/* ============ ADMIN PANEL — Professional Redesign ============ */
 #admin-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.9);
+  background: var(--bg);
   z-index: 800;
   opacity: 0; visibility: hidden;
   transition: opacity 0.4s, visibility 0.4s;
-  overflow-y: auto;
+  display: flex; flex-direction: column;
 }
 #admin-overlay.open { opacity: 1; visibility: visible; }
-.admin-box {
-  max-width: 900px; margin: 0 auto;
-  padding: 3rem 2rem 5rem;
-}
-.admin-header {
+
+/* TOP BAR */
+.adm-topbar {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
+  padding: 0 2rem;
+  height: 60px;
   border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
 }
-.admin-title { font-family: var(--font-disp); font-size: 2.5rem; font-weight: 300; }
-.admin-close {
-  background: none; border: 1px solid var(--border2);
-  color: var(--cream); padding: 0.75rem 1.5rem;
-  font-family: var(--font-body); font-size: 0.75rem;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  cursor: none; transition: all 0.3s;
+.adm-topbar-logo {
+  font-family: var(--font-disp); font-size: 1.2rem; font-weight: 400;
+  letter-spacing: 0.2em; color: var(--cream);
 }
-.admin-close:hover { background: var(--red); border-color: var(--red); }
-.admin-section { margin-bottom: 3rem; }
-.admin-section-title {
-  font-family: var(--font-disp); font-size: 1.5rem; font-weight: 400;
-  margin-bottom: 1.5rem; color: var(--gold);
+.adm-topbar-logo span { color: var(--gold); }
+.adm-topbar-right { display: flex; align-items: center; gap: 1rem; }
+.adm-badge {
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+  background: rgba(200,146,42,0.1); color: var(--gold);
+  border: 1px solid var(--border2);
+  padding: 0.3rem 0.7rem;
 }
-.admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-.admin-full { grid-template-columns: 1fr; }
-.admin-menu-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 1.5rem; }
-.admin-menu-item {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  padding: 1.25rem;
-  display: grid; grid-template-columns: 1fr auto;
-  align-items: center; gap: 1rem;
-}
-.admin-item-info { }
-.admin-item-name { font-family: var(--font-disp); font-size: 1.1rem; font-weight: 400; }
-.admin-item-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
-.admin-item-btns { display: flex; gap: 0.5rem; }
-.admin-btn-sm {
-  background: none; border: 1px solid var(--border2);
-  color: var(--cream2); padding: 0.4rem 0.75rem;
+.adm-close-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--cream2); padding: 0.45rem 1rem;
   font-family: var(--font-body); font-size: 0.7rem;
-  letter-spacing: 0.1em; text-transform: uppercase;
+  letter-spacing: 0.12em; text-transform: uppercase;
   cursor: none; transition: all 0.3s;
 }
-.admin-btn-sm:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
-.admin-btn-sm.danger:hover { background: var(--red); border-color: var(--red); }
-.admin-add-item {
-  background: var(--bg3);
-  border: 1px dashed var(--border2);
-  padding: 2rem;
-  margin-bottom: 1.5rem;
+.adm-close-btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* LAYOUT */
+.adm-layout {
+  display: flex; flex: 1; overflow: hidden;
 }
-.admin-add-title {
-  font-family: var(--font-disp); font-size: 1.2rem; margin-bottom: 1.5rem; font-weight: 300;
+
+/* SIDEBAR */
+.adm-sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
 }
-.admin-save-btn {
+.adm-nav { padding: 1.5rem 0; flex: 1; }
+.adm-nav-section {
+  font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--muted); padding: 0.5rem 1.5rem; margin-bottom: 0.25rem;
+}
+.adm-nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.8rem; font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--cream2);
+  cursor: none; transition: all 0.2s;
+  border-left: 2px solid transparent;
+  position: relative;
+}
+.adm-nav-item:hover { color: var(--cream); background: rgba(200,146,42,0.04); }
+.adm-nav-item.active {
+  color: var(--gold);
+  border-left-color: var(--gold);
+  background: rgba(200,146,42,0.06);
+}
+.adm-nav-icon {
+  width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7;
+}
+.adm-nav-item.active .adm-nav-icon { opacity: 1; }
+.adm-nav-badge {
+  margin-left: auto;
   background: var(--gold); color: var(--bg);
-  border: none; padding: 1rem 3rem;
-  font-family: var(--font-body); font-size: 0.8rem;
+  font-size: 0.6rem; font-weight: 500;
+  padding: 0.1rem 0.4rem; border-radius: 10px;
+}
+.adm-sidebar-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.adm-save-all {
+  width: 100%;
+  background: var(--gold); color: var(--bg);
+  border: none; padding: 0.8rem;
+  font-family: var(--font-body); font-size: 0.72rem;
   font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase;
   cursor: none; transition: all 0.3s;
 }
-.admin-save-btn:hover { background: var(--gold-light); }
+.adm-save-all:hover { background: var(--gold-light); }
+
+/* MAIN */
+.adm-main {
+  flex: 1; overflow-y: auto;
+  background: var(--bg);
+}
+.adm-tab { display: none; }
+.adm-tab.active { display: block; }
+
+/* CONTENT AREA */
+.adm-content {
+  max-width: 820px;
+  padding: 2.5rem 2.5rem 5rem;
+}
+.adm-page-title {
+  font-family: var(--font-disp); font-size: 2rem; font-weight: 300;
+  margin-bottom: 0.4rem;
+}
+.adm-page-sub {
+  font-size: 0.8rem; color: var(--muted); font-weight: 200;
+  margin-bottom: 2.5rem;
+}
+
+/* CARD */
+.adm-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+.adm-card-title {
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.adm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.adm-grid-1 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+/* FORM ELEMENTS — admin-specific overrides */
+.adm-label {
+  display: block;
+  font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--cream2); margin-bottom: 0.4rem;
+}
+.adm-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid rgba(200,146,42,0.12);
+  color: var(--cream);
+  padding: 0.75rem 0.9rem;
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 200;
+  outline: none; transition: border-color 0.3s;
+}
+.adm-input:focus { border-color: var(--gold); }
+.adm-textarea { height: 80px; resize: vertical; }
+.adm-fg { margin-bottom: 0; }
+
+/* UPLOAD ROW */
+.adm-upload-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.adm-upload-thumb {
+  width: 52px; height: 52px; object-fit: cover;
+  border: 1px solid var(--border); display: none; flex-shrink: 0;
+}
+.adm-upload-thumb.show { display: block; }
+.adm-btn-upload {
+  background: none; border: 1px solid var(--border2);
+  color: var(--cream2); padding: 0.5rem 0.9rem;
+  font-family: var(--font-body); font-size: 0.68rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: none; transition: all 0.25s; white-space: nowrap;
+}
+.adm-btn-upload:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+.adm-btn-clear {
+  background: none; border: none;
+  color: var(--muted); font-size: 0.68rem;
+  cursor: none; letter-spacing: 0.08em; text-transform: uppercase;
+  transition: color 0.2s; padding: 0;
+}
+.adm-btn-clear:hover { color: var(--red); }
+
+/* WA ROW */
+.adm-wa-row { display: flex; gap: 0.5rem; align-items: flex-start; }
+.adm-wa-preview { font-size: 0.68rem; color: var(--gold); margin-top: 0.35rem; min-height: 1rem; }
+.adm-btn-test {
+  background: none; border: 1px solid var(--border2);
+  color: var(--cream2); padding: 0.75rem 0.9rem;
+  font-family: var(--font-body); font-size: 0.68rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: none; transition: all 0.25s; white-space: nowrap; flex-shrink: 0;
+}
+.adm-btn-test:hover { background: rgba(200,146,42,0.15); border-color: var(--gold); color: var(--gold); }
+
+/* MENU LIST */
+.adm-menu-list { display: flex; flex-direction: column; gap: 2px; }
+.adm-menu-item {
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: 1rem;
+  background: var(--bg3);
+  border: 1px solid rgba(200,146,42,0.08);
+  padding: 1rem 1.25rem;
+  transition: border-color 0.2s;
+}
+.adm-menu-item:hover { border-color: var(--border); }
+.adm-item-thumb {
+  width: 44px; height: 44px; object-fit: cover;
+  border: 1px solid var(--border); flex-shrink: 0;
+  background: var(--bg2);
+}
+.adm-item-name {
+  font-family: var(--font-disp); font-size: 1rem; font-weight: 400;
+  line-height: 1.2;
+}
+.adm-item-meta { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+.adm-item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+.adm-btn-sm {
+  background: none; border: 1px solid var(--border);
+  color: var(--cream2); padding: 0.35rem 0.65rem;
+  font-family: var(--font-body); font-size: 0.62rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: none; transition: all 0.2s;
+}
+.adm-btn-sm:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+.adm-btn-sm.del:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* ADD FORM */
+.adm-add-form {
+  background: var(--bg3);
+  border: 1px dashed rgba(200,146,42,0.25);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+.adm-add-form-title {
+  font-family: var(--font-disp); font-size: 1.1rem; font-weight: 300;
+  margin-bottom: 1.25rem; color: var(--cream);
+}
+
+/* IG ENTRIES */
+.adm-ig-entry {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  margin-bottom: 2px;
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.adm-ig-num {
+  font-family: var(--font-disp); font-size: 1.8rem; font-weight: 300;
+  color: rgba(200,146,42,0.3); flex-shrink: 0; line-height: 1; padding-top: 4px;
+  min-width: 28px; text-align: center;
+}
+
+/* INFO BOX */
+.adm-info {
+  background: rgba(200,146,42,0.05);
+  border: 1px solid rgba(200,146,42,0.15);
+  padding: 1rem 1.25rem;
+  font-size: 0.78rem; color: var(--cream2);
+  line-height: 1.8; margin-bottom: 1.25rem;
+}
+.adm-info strong { color: var(--cream); }
+.adm-info code { color: var(--gold); font-family: monospace; font-size: 0.82rem; }
+
+/* STAT CHIPS */
+.adm-stats-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.adm-stat-chip {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 1rem 1.25rem; flex: 1; min-width: 120px;
+}
+.adm-stat-num {
+  font-family: var(--font-disp); font-size: 2rem; font-weight: 300;
+  color: var(--gold); line-height: 1;
+}
+.adm-stat-label {
+  font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); margin-top: 0.3rem;
+}
+
+/* TOAST */
 .admin-toast {
   position: fixed; bottom: 2rem; right: 2rem;
-  background: var(--gold); color: var(--bg);
-  padding: 1rem 2rem;
-  font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
-  z-index: 900;
+  background: var(--bg2); color: var(--cream);
+  border: 1px solid var(--gold);
+  border-left: 3px solid var(--gold);
+  padding: 0.9rem 1.5rem;
+  font-size: 0.78rem; letter-spacing: 0.08em;
+  z-index: 9100;
   transform: translateY(80px); opacity: 0;
   transition: all 0.4s var(--ease);
+  display: flex; align-items: center; gap: 0.6rem;
 }
 .admin-toast.show { transform: translateY(0); opacity: 1; }
+
+/* ADMIN RESPONSIVE */
+@media (max-width: 768px) {
+  .adm-sidebar { display: none; }
+  .adm-content { padding: 1.5rem 1rem 4rem; }
+  .adm-grid-2 { grid-template-columns: 1fr; }
+  .adm-topbar { padding: 0 1rem; }
+}
+
+/* ADMIN BTN OLD COMPAT */
+.admin-btn-sm { display: none; }
+.admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.admin-full { grid-template-columns: 1fr; }
+.upload-area { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.upload-btn { background: none; border: 1px solid var(--border2); color: var(--cream2); padding: 0.5rem 1rem; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: none; transition: all 0.3s; }
+.upload-btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+.upload-preview { width: 48px; height: 48px; object-fit: cover; border: 1px solid var(--border); display: none; }
+.upload-preview.show { display: block; }
+.upload-clear { background: none; border: none; color: var(--muted); font-size: 0.7rem; cursor: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.3s; }
+.upload-clear:hover { color: var(--red); }
+.ig-admin-entry { background: var(--bg3); border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1px; display: flex; gap: 1rem; align-items: flex-start; }
+.ig-entry-num { font-family: var(--font-disp); font-size: 1.5rem; color: var(--muted); flex-shrink: 0; line-height: 1; padding-top: 8px; }
+.admin-save-btn { background: var(--gold); color: var(--bg); border: none; padding: 1rem 3rem; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; cursor: none; transition: all 0.3s; }
+.admin-save-btn:hover { background: var(--gold-light); }
 
 /* PARALLAX DIVIDER */
 .parallax-divider {
@@ -1326,7 +1559,7 @@ footer {
     </div>
   </div>
   <div class="footer-bottom">
-    <p class="footer-copy" id="footerCopy">© 2025 Addochef Pizzeria — Tutti i diritti riservati</p>
+    <p class="footer-copy" id="footerCopy">© 2025 Fuoco Pizzeria — Tutti i diritti riservati</p>
     <button class="footer-admin-trigger" id="adminTriggerBtn">gestione</button>
   </div>
 </footer>
@@ -1381,7 +1614,7 @@ footer {
         </div>
       </div>
     </div>
-    <button class="btn-primary checkout-submit" onclick="submitOrder()">Invia Ordine via WhatsApp 🚀</button>
+    <button class="btn-primary checkout-submit" onclick="submitOrder()">Invia Ordine su WhatsApp</button>
     <button class="checkout-close-btn" onclick="closeCheckout()">Annulla</button>
   </div>
 </div>
@@ -1402,205 +1635,368 @@ footer {
 
 <!-- ADMIN PANEL -->
 <div id="admin-overlay">
-  <div class="admin-box">
-    <div class="admin-header">
-      <h2 class="admin-title">Pannello Admin</h2>
-      <button class="admin-close" onclick="closeAdmin()">Chiudi ✕</button>
-    </div>
 
-    <!-- GENERAL SETTINGS -->
-    <div class="admin-section">
-      <div class="admin-section-title">Impostazioni Generali</div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Nome Pizzeria</label>
-          <input class="form-input" id="s_name" type="text">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Tagline Hero</label>
-          <input class="form-input" id="s_tagline" type="text">
-        </div>
+  <!-- TOP BAR -->
+  <div class="adm-topbar">
+    <div class="adm-topbar-logo">Addò <span>Chef</span> &nbsp;<span style="font-size:0.8rem;opacity:0.4;letter-spacing:0.1em;">/ Admin</span></div>
+    <div class="adm-topbar-right">
+      <span class="adm-badge">Pannello di Gestione</span>
+      <button class="adm-close-btn" onclick="closeAdmin()">Esci ✕</button>
+    </div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="adm-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="adm-sidebar">
+      <nav class="adm-nav">
+        <div class="adm-nav-section">Sito</div>
+        <button class="adm-nav-item active" onclick="admTab('generale',this)">
+          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          Generale
+        </button>
+        <button class="adm-nav-item" onclick="admTab('contatti',this)">
+          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 6a5 5 0 0110 0"/></svg>
+          Contatti
+        </button>
+        <button class="adm-nav-item" onclick="admTab('contenuti',this)">
+          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/></svg>
+          Contenuti
+        </button>
+        <div class="adm-nav-section" style="margin-top:1rem;">Menù</div>
+        <button class="adm-nav-item" onclick="admTab('menu',this)">
+          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+          Gestione Menù <span class="adm-nav-badge" id="menuCount">0</span>
+        </button>
+        <div class="adm-nav-section" style="margin-top:1rem;">Social</div>
+        <button class="adm-nav-item" onclick="admTab('instagram',this)">
+          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="3"/><circle cx="8" cy="8" r="3"/><circle cx="11.5" cy="4.5" r="0.5" fill="currentColor"/></svg>
+          Instagram
+        </button>
+        <div class="adm-nav-section" style="margin-top:1rem;">Account</div>
+        <button class="adm-nav-item" onclick="admTab('sicurezza',this)">
+          <svg class="adm-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l5 2v4c0 3-2.5 5.5-5 6-2.5-.5-5-3-5-6V4l5-2z"/></svg>
+          Sicurezza
+        </button>
+      </nav>
+      <div class="adm-sidebar-footer">
+        <button class="adm-save-all" onclick="saveSettings()">Salva modifiche</button>
       </div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Sottotitolo Hero</label>
-          <input class="form-input" id="s_sub" type="text">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Anno fondazione / Città</label>
-          <input class="form-input" id="s_tag" type="text">
-        </div>
-      </div>
-      <div class="admin-row admin-full">
-        <div class="form-group">
-          <label class="form-label">Immagine Hero</label>
-          <div class="upload-area">
-            <button class="upload-btn" onclick="uploadImage('pz_img_hero', (d)=>{ document.getElementById('prev_hero').src=d; document.getElementById('prev_hero').classList.add('show'); })">📁 Carica dal PC</button>
-            <img id="prev_hero" class="upload-preview" src="" alt="preview">
-            <button class="upload-clear" onclick="clearImage('pz_img_hero','prev_hero')">Rimuovi</button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="adm-main">
+
+      <!-- TAB: GENERALE -->
+      <div class="adm-tab active" id="adm-tab-generale">
+        <div class="adm-content">
+          <div class="adm-page-title">Impostazioni Generali</div>
+          <div class="adm-page-sub">Testi e immagini della homepage</div>
+
+          <div class="adm-stats-row" id="admStatsRow">
+            <div class="adm-stat-chip"><div class="adm-stat-num" id="st_menu">—</div><div class="adm-stat-label">Voci menù</div></div>
+            <div class="adm-stat-chip"><div class="adm-stat-num" id="st_ig">—</div><div class="adm-stat-label">Reel Instagram</div></div>
+            <div class="adm-stat-chip"><div class="adm-stat-num" id="st_foto">—</div><div class="adm-stat-label">Foto caricate</div></div>
           </div>
-          <input class="form-input" id="s_heroImg" type="url" placeholder="Oppure incolla URL esterno" style="margin-top:0.5rem;">
-        </div>
-      </div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Telefono</label>
-          <input class="form-input" id="s_phone" type="text">
-        </div>
-        <div class="form-group">
-          <label class="form-label">WhatsApp — numero con prefisso (es. 393331234567)</label>
-          <div style="display:flex;gap:0.5rem;align-items:flex-start;">
-            <div style="flex:1;">
-              <input class="form-input" id="s_whatsapp" type="text" placeholder="393331234567"
-                oninput="updateWaPreview()">
-              <p id="waPreview" style="font-size:0.7rem;color:var(--gold);margin-top:0.4rem;"></p>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Identità del sito</div>
+            <div class="adm-grid-2">
+              <div class="adm-fg">
+                <label class="adm-label">Nome Pizzeria</label>
+                <input class="adm-input" id="s_name" type="text">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Tag / Città</label>
+                <input class="adm-input" id="s_tag" type="text">
+              </div>
             </div>
-            <button class="admin-btn-sm" onclick="testWhatsapp()" style="margin-top:2px;flex-shrink:0;">
-              Testa ↗
-            </button>
           </div>
-        </div>
-      </div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Indirizzo</label>
-          <input class="form-input" id="s_address" type="text">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Orari</label>
-          <input class="form-input" id="s_hours" type="text">
-        </div>
-      </div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Testo "Chi Siamo" (1)</label>
-          <textarea class="form-input" id="s_about1" style="height:80px;resize:vertical;"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Testo "Chi Siamo" (2)</label>
-          <textarea class="form-input" id="s_about2" style="height:80px;resize:vertical;"></textarea>
-        </div>
-      </div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Immagine "Chi Siamo"</label>
-          <div class="upload-area">
-            <button class="upload-btn" onclick="uploadImage('pz_img_about', (d)=>{ document.getElementById('prev_about').src=d; document.getElementById('prev_about').classList.add('show'); })">📁 Carica dal PC</button>
-            <img id="prev_about" class="upload-preview" src="" alt="preview">
-            <button class="upload-clear" onclick="clearImage('pz_img_about','prev_about')">Rimuovi</button>
-          </div>
-          <input class="form-input" id="s_aboutImg" type="url" placeholder="Oppure URL esterno" style="margin-top:0.5rem;">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Citazione parallax</label>
-          <input class="form-input" id="s_quote" type="text">
-        </div>
-      </div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Autore citazione</label>
-          <input class="form-input" id="s_quoteAuthor" type="text">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password Admin</label>
-          <input class="form-input" id="s_adminPass" type="password" placeholder="Nuova password">
-        </div>
-      </div>
-    </div>
 
-    <!-- INSTAGRAM -->
-    <div class="admin-section">
-      <div class="admin-section-title">Instagram Reels</div>
-      <div class="admin-row">
-        <div class="form-group">
-          <label class="form-label">Username Instagram (es. fuocopi zzeria)</label>
-          <input class="form-input" id="s_igHandle" type="text" placeholder="fuocopi zzeria">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Link profilo Instagram</label>
-          <input class="form-input" id="s_igLink" type="url" placeholder="https://instagram.com/...">
-        </div>
-      </div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6;">Per ogni Reel incolla il link diretto di Instagram (es. <span style="color:var(--cream2)">https://www.instagram.com/reel/ABC123/</span>). Il video verrà incorporato nel sito con il player nativo. Il link si copia aprendo il post su Instagram → "…" → "Copia link".</p>
-      <div id="igAdminEntries"></div>
-      <button class="admin-btn-sm" onclick="addIgEntry()" style="margin-top:0.5rem;">+ Aggiungi Reel</button>
-    </div>
-
-    <!-- MENU ITEMS -->
-    <div class="admin-section">
-      <div class="admin-section-title">Gestione Menù</div>
-      <div class="admin-menu-list" id="adminMenuList"></div>
-      <div class="admin-add-item">
-        <div class="admin-add-title">Aggiungi Voce</div>
-        <div class="admin-row">
-          <div class="form-group">
-            <label class="form-label">Nome</label>
-            <input class="form-input" id="new_name" type="text" placeholder="Margherita">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Categoria</label>
-            <input class="form-input" id="new_cat" type="text" placeholder="Pizze Classiche">
-          </div>
-        </div>
-        <div class="admin-row">
-          <div class="form-group">
-            <label class="form-label">Prezzo (€)</label>
-            <input class="form-input" id="new_price" type="number" step="0.5" placeholder="10">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Badge (es. Chef's choice)</label>
-            <input class="form-input" id="new_badge" type="text" placeholder="">
-          </div>
-        </div>
-        <div class="admin-row admin-full">
-          <div class="form-group">
-            <label class="form-label">Descrizione</label>
-            <textarea class="form-input" id="new_desc" style="height:70px;resize:vertical;" placeholder="Ingredienti e note..."></textarea>
-          </div>
-        </div>
-        <div class="admin-row admin-full">
-          <div class="form-group">
-            <label class="form-label">Foto del piatto</label>
-            <div class="upload-area">
-              <button class="upload-btn" onclick="uploadImage('pz_img_new', (d)=>{ document.getElementById('prev_new').src=d; document.getElementById('prev_new').classList.add('show'); document.getElementById('new_img').value=''; })">📁 Carica dal PC</button>
-              <img id="prev_new" class="upload-preview" src="" alt="preview">
-              <button class="upload-clear" onclick="clearImage('pz_img_new','prev_new')">Rimuovi</button>
+          <div class="adm-card">
+            <div class="adm-card-title">Hero — Testi</div>
+            <div class="adm-grid-1" style="gap:1rem;">
+              <div class="adm-fg">
+                <label class="adm-label">Titolo principale (supporta &lt;em&gt; e &lt;br&gt;)</label>
+                <input class="adm-input" id="s_tagline" type="text">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Sottotitolo</label>
+                <input class="adm-input" id="s_sub" type="text">
+              </div>
             </div>
-            <input class="form-input" id="new_img" type="url" placeholder="Oppure URL esterno" style="margin-top:0.5rem;">
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Hero — Immagine di sfondo</div>
+            <div class="adm-upload-row">
+              <button class="adm-btn-upload" onclick="uploadImage('pz_img_hero', (d)=>{ document.getElementById('prev_hero').src=d; document.getElementById('prev_hero').classList.add('show'); admRefreshStats(); })">Carica dal PC</button>
+              <img id="prev_hero" class="adm-upload-thumb" src="" alt="preview">
+              <button class="adm-btn-clear" onclick="clearImage('pz_img_hero','prev_hero');admRefreshStats()">Rimuovi</button>
+            </div>
+            <label class="adm-label" style="margin-top:0.75rem;">Oppure URL esterno</label>
+            <input class="adm-input" id="s_heroImg" type="url" placeholder="https://...">
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Citazione parallax</div>
+            <div class="adm-grid-2">
+              <div class="adm-fg">
+                <label class="adm-label">Testo citazione</label>
+                <input class="adm-input" id="s_quote" type="text">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Firma / Autore</label>
+                <input class="adm-input" id="s_quoteAuthor" type="text">
+              </div>
+            </div>
           </div>
         </div>
-        <button class="admin-save-btn" onclick="addMenuItem()">+ Aggiungi al Menù</button>
       </div>
-    </div>
 
-    <button class="admin-save-btn" onclick="saveSettings()" style="width:100%">💾 Salva tutte le modifiche</button>
+      <!-- TAB: CONTATTI -->
+      <div class="adm-tab" id="adm-tab-contatti">
+        <div class="adm-content">
+          <div class="adm-page-title">Contatti & Orari</div>
+          <div class="adm-page-sub">Informazioni di contatto visualizzate nel footer e nella sezione ordini</div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Recapiti</div>
+            <div class="adm-grid-2">
+              <div class="adm-fg">
+                <label class="adm-label">Telefono</label>
+                <input class="adm-input" id="s_phone" type="text" placeholder="+39 081 000 0000">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Indirizzo</label>
+                <input class="adm-input" id="s_address" type="text" placeholder="Via Roma 1, Mercogliano">
+              </div>
+            </div>
+            <div style="margin-top:1rem;">
+              <label class="adm-label">Orari di apertura</label>
+              <input class="adm-input" id="s_hours" type="text" placeholder="Mar–Dom: 18:00–23:30">
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">WhatsApp ordini</div>
+            <label class="adm-label">Numero con prefisso internazionale (es. 393331234567)</label>
+            <div class="adm-wa-row">
+              <div style="flex:1">
+                <input class="adm-input" id="s_whatsapp" type="text" placeholder="393331234567" oninput="updateWaPreview()">
+                <div class="adm-wa-preview" id="waPreview"></div>
+              </div>
+              <button class="adm-btn-test" onclick="testWhatsapp()">Test ↗</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CONTENUTI -->
+      <div class="adm-tab" id="adm-tab-contenuti">
+        <div class="adm-content">
+          <div class="adm-page-title">Sezione Chi Siamo</div>
+          <div class="adm-page-sub">Testi e immagine della sezione storia/chi siamo</div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Testi</div>
+            <div style="display:flex;flex-direction:column;gap:1rem;">
+              <div class="adm-fg">
+                <label class="adm-label">Paragrafo 1</label>
+                <textarea class="adm-input adm-textarea" id="s_about1"></textarea>
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Paragrafo 2</label>
+                <textarea class="adm-input adm-textarea" id="s_about2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Immagine</div>
+            <div class="adm-upload-row">
+              <button class="adm-btn-upload" onclick="uploadImage('pz_img_about', (d)=>{ document.getElementById('prev_about').src=d; document.getElementById('prev_about').classList.add('show'); admRefreshStats(); })">Carica dal PC</button>
+              <img id="prev_about" class="adm-upload-thumb" src="" alt="preview">
+              <button class="adm-btn-clear" onclick="clearImage('pz_img_about','prev_about');admRefreshStats()">Rimuovi</button>
+            </div>
+            <label class="adm-label" style="margin-top:0.75rem;">Oppure URL esterno</label>
+            <input class="adm-input" id="s_aboutImg" type="url" placeholder="https://...">
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: MENU -->
+      <div class="adm-tab" id="adm-tab-menu">
+        <div class="adm-content">
+          <div class="adm-page-title">Gestione Menù</div>
+          <div class="adm-page-sub">Aggiungi, modifica o rimuovi voci dal menù</div>
+
+          <div class="adm-card" style="padding:0;overflow:hidden;">
+            <div style="padding:1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+              <span class="adm-card-title" style="margin-bottom:0;border:none;padding:0;">Voci del Menù</span>
+              <span style="font-size:0.72rem;color:var(--muted);" id="menuCountLabel">0 voci</span>
+            </div>
+            <div class="adm-menu-list" id="adminMenuList" style="padding:0.5rem 0.75rem;"></div>
+          </div>
+
+          <div class="adm-add-form">
+            <div class="adm-add-form-title">+ Aggiungi nuova voce</div>
+            <div class="adm-grid-2" style="margin-bottom:1rem;">
+              <div class="adm-fg">
+                <label class="adm-label">Nome</label>
+                <input class="adm-input" id="new_name" type="text" placeholder="Margherita">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Categoria</label>
+                <input class="adm-input" id="new_cat" type="text" placeholder="Le Classiche">
+              </div>
+            </div>
+            <div class="adm-grid-2" style="margin-bottom:1rem;">
+              <div class="adm-fg">
+                <label class="adm-label">Prezzo (€)</label>
+                <input class="adm-input" id="new_price" type="number" step="0.5" placeholder="9.00">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Badge (opzionale)</label>
+                <input class="adm-input" id="new_badge" type="text" placeholder="Chef's Choice">
+              </div>
+            </div>
+            <div style="margin-bottom:1rem;">
+              <label class="adm-label">Descrizione ingredienti</label>
+              <textarea class="adm-input adm-textarea" id="new_desc" placeholder="Ingredienti e note..."></textarea>
+            </div>
+            <div style="margin-bottom:1.25rem;">
+              <label class="adm-label">Foto del piatto</label>
+              <div class="adm-upload-row" style="margin-bottom:0.5rem;">
+                <button class="adm-btn-upload" onclick="uploadImage('pz_img_new', (d)=>{ document.getElementById('prev_new').src=d; document.getElementById('prev_new').classList.add('show'); document.getElementById('new_img').value=''; })">Carica dal PC</button>
+                <img id="prev_new" class="adm-upload-thumb" src="" alt="">
+                <button class="adm-btn-clear" onclick="clearImage('pz_img_new','prev_new')">Rimuovi</button>
+              </div>
+              <input class="adm-input" id="new_img" type="url" placeholder="Oppure URL immagine">
+            </div>
+            <button class="adm-save-all" onclick="addMenuItem()" style="width:auto;padding:0.8rem 2rem;">Aggiungi al Menù</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: INSTAGRAM -->
+      <div class="adm-tab" id="adm-tab-instagram">
+        <div class="adm-content">
+          <div class="adm-page-title">Instagram</div>
+          <div class="adm-page-sub">Configura il profilo e aggiungi i Reel da mostrare sul sito</div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Profilo Instagram</div>
+            <div class="adm-grid-2">
+              <div class="adm-fg">
+                <label class="adm-label">Username (senza @)</label>
+                <input class="adm-input" id="s_igHandle" type="text" placeholder="addochef">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Link profilo</label>
+                <input class="adm-input" id="s_igLink" type="url" placeholder="https://instagram.com/addochef">
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Reel da mostrare</div>
+            <div class="adm-info">
+              Apri il Reel su Instagram → tocca <strong>…</strong> → <strong>Copia link</strong> → incollalo qui sotto.<br>
+              Il Reel verrà incorporato con il player nativo di Instagram. Max 8 Reel.
+            </div>
+            <div id="igAdminEntries"></div>
+            <button class="adm-btn-upload" onclick="addIgEntry()" style="margin-top:0.75rem;">+ Aggiungi Reel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: SICUREZZA -->
+      <div class="adm-tab" id="adm-tab-sicurezza">
+        <div class="adm-content">
+          <div class="adm-page-title">Sicurezza</div>
+          <div class="adm-page-sub">Gestione accesso all'area amministrazione</div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Password Admin</div>
+            <div class="adm-info">
+              La password protegge l'accesso a questo pannello. Cambiala con qualcosa di sicuro e annotala in un posto sicuro — se la perdi dovrai modificarla direttamente nel codice sorgente.
+            </div>
+            <div class="adm-grid-2">
+              <div class="adm-fg">
+                <label class="adm-label">Nuova password</label>
+                <input class="adm-input" id="s_adminPass" type="password" placeholder="Lascia vuoto per non cambiare">
+              </div>
+              <div class="adm-fg">
+                <label class="adm-label">Password attuale</label>
+                <input class="adm-input" type="password" placeholder="••••••••" disabled style="opacity:0.4;">
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">Accesso nascosto</div>
+            <div class="adm-info">
+              L'admin si apre cliccando <strong>3 volte rapidamente</strong> sulla parola <strong>"gestione"</strong> nel footer del sito. Non è visibile ai visitatori.
+            </div>
+          </div>
+
+          <div class="adm-card" style="border-color:rgba(139,30,30,0.3);">
+            <div class="adm-card-title" style="color:var(--red);border-color:rgba(139,30,30,0.2);">Zona Pericolosa</div>
+            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">Resetta tutte le impostazioni e il menù ai valori predefiniti. Questa azione non è reversibile.</p>
+            <button class="adm-btn-sm del" onclick="if(confirm('Sei sicuro? Tutti i dati personalizzati verranno persi.'))resetAllData()">Reset completo</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ORDER CONFIRMED MODAL -->
+<div id="order-confirmed" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:700;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;visibility:hidden;transition:opacity 0.5s,visibility 0.5s;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);padding:3rem 2.5rem;width:min(480px,100%);text-align:center;transform:translateY(30px);transition:transform 0.5s var(--ease);" id="confirmedBox">
+    <div style="font-size:3rem;margin-bottom:1.5rem;" id="confirmedIcon">✓</div>
+    <h2 style="font-family:var(--font-disp);font-size:2.2rem;font-weight:300;margin-bottom:0.75rem;" id="confirmedTitle">Ordine ricevuto!</h2>
+    <p style="font-size:0.9rem;color:var(--cream2);font-weight:200;line-height:1.7;margin-bottom:2rem;" id="confirmedMsg">Il tuo ordine è stato inviato. Ti contatteremo presto per confermare.</p>
+    <div id="confirmedSummary" style="background:var(--bg3);border:1px solid var(--border);padding:1.25rem;text-align:left;margin-bottom:2rem;font-size:0.82rem;color:var(--cream2);line-height:1.8;"></div>
+    <button class="btn-primary" onclick="closeConfirmed()" style="width:100%;">Torna al sito</button>
   </div>
 </div>
 
 <!-- EDIT MENU ITEM MODAL -->
-<div id="editItemModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:900;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;visibility:hidden;transition:opacity 0.3s,visibility 0.3s;">
-  <div style="background:var(--bg2);border:1px solid var(--border2);padding:2.5rem;width:min(550px,100%);max-height:85vh;overflow-y:auto;">
-    <h3 style="font-family:var(--font-disp);font-size:1.5rem;margin-bottom:2rem;font-weight:400;">Modifica Voce</h3>
+<div id="editItemModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;visibility:hidden;transition:opacity 0.3s,visibility 0.3s;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);padding:2.5rem;width:min(560px,100%);max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+      <h3 style="font-family:var(--font-disp);font-size:1.5rem;font-weight:400;">Modifica Voce</h3>
+      <button class="adm-close-btn" onclick="closeEditItem()">✕</button>
+    </div>
     <input type="hidden" id="edit_id">
-    <div class="admin-row">
-      <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="edit_name"></div>
-      <div class="form-group"><label class="form-label">Categoria</label><input class="form-input" id="edit_cat"></div>
+    <div class="adm-grid-2" style="margin-bottom:1rem;">
+      <div><label class="adm-label">Nome</label><input class="adm-input" id="edit_name"></div>
+      <div><label class="adm-label">Categoria</label><input class="adm-input" id="edit_cat"></div>
     </div>
-    <div class="admin-row">
-      <div class="form-group"><label class="form-label">Prezzo</label><input class="form-input" id="edit_price" type="number" step="0.5"></div>
-      <div class="form-group"><label class="form-label">Badge</label><input class="form-input" id="edit_badge"></div>
+    <div class="adm-grid-2" style="margin-bottom:1rem;">
+      <div><label class="adm-label">Prezzo (€)</label><input class="adm-input" id="edit_price" type="number" step="0.5"></div>
+      <div><label class="adm-label">Badge</label><input class="adm-input" id="edit_badge"></div>
     </div>
-    <div class="form-group"><label class="form-label">Descrizione</label><textarea class="form-input" id="edit_desc" style="height:70px;resize:vertical;"></textarea></div>
-    <div class="form-group"><label class="form-label">Foto del piatto</label>
-      <div class="upload-area">
-        <button class="upload-btn" onclick="uploadImage('pz_img_edit_tmp', (d)=>{ document.getElementById('prev_edit').src=d; document.getElementById('prev_edit').classList.add('show'); document.getElementById('edit_img').value=''; })">📁 Carica dal PC</button>
-        <img id="prev_edit" class="upload-preview" src="" alt="preview">
-        <button class="upload-clear" onclick="clearImage('pz_img_edit_tmp','prev_edit')">Rimuovi</button>
+    <div style="margin-bottom:1rem;">
+      <label class="adm-label">Descrizione</label>
+      <textarea class="adm-input adm-textarea" id="edit_desc"></textarea>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <label class="adm-label">Foto del piatto</label>
+      <div class="adm-upload-row" style="margin-bottom:0.5rem;">
+        <button class="adm-btn-upload" onclick="uploadImage('pz_img_edit_tmp', (d)=>{ document.getElementById('prev_edit').src=d; document.getElementById('prev_edit').classList.add('show'); document.getElementById('edit_img').value=''; })">Carica dal PC</button>
+        <img id="prev_edit" class="adm-upload-thumb" src="" alt="">
+        <button class="adm-btn-clear" onclick="clearImage('pz_img_edit_tmp','prev_edit')">Rimuovi</button>
       </div>
-      <input class="form-input" id="edit_img" type="url" placeholder="Oppure URL esterno" style="margin-top:0.5rem;"></div>
-    <div style="display:flex;gap:1rem;margin-top:1.5rem;">
-      <button class="admin-save-btn" onclick="saveEditItem()" style="flex:1">Salva</button>
-      <button class="admin-close" onclick="closeEditItem()">Annulla</button>
+      <input class="adm-input" id="edit_img" type="url" placeholder="Oppure URL esterno">
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <button class="adm-save-all" onclick="saveEditItem()" style="flex:1;">Salva modifiche</button>
+      <button class="adm-close-btn" onclick="closeEditItem()">Annulla</button>
     </div>
   </div>
 </div>
@@ -1625,6 +2021,12 @@ const DEFAULT_SETTINGS = {
   igHandle: '',
   igLink: '',
   igReels: [],
+  ejPublicKey: '',
+  ejServiceId: '',
+  ejTemplateId: '',
+  ejEmail: '',
+  tgBotToken: '',
+  tgChatId: '',
   adminPass: 'admin123'
 };
 
@@ -2102,20 +2504,163 @@ function submitOrder() {
   const name = document.getElementById('chkName').value.trim();
   const phone = document.getElementById('chkPhone').value.trim();
   if(!name || !phone) { showToast('Inserisci nome e telefono!'); return; }
-  const itemsList = cart.map(c => `• ${c.name} x${c.qty} — €${(c.price*c.qty).toFixed(2)}`).join('\n');
+
+  const itemsList = cart.map(c => `  ${c.name} x${c.qty}  —  €${(c.price*c.qty).toFixed(2)}`).join('\n');
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
-  const notes = document.getElementById('cartNotes').value;
+  const notes = document.getElementById('cartNotes').value.trim();
   const addr = deliveryType === 'delivery'
-    ? `\nIndirizzo: ${document.getElementById('chkAddress').value}`
-    : '\nModalita: Ritiro in sede';
+    ? `Consegna: ${document.getElementById('chkAddress').value}`
+    : 'Ritiro in sede';
   const time = document.getElementById('chkTime')?.value || '';
-  const msg = `*NUOVO ORDINE — ${settings.name.toUpperCase()}*\n\nNome: ${name}\nTelefono: ${phone}${addr}${time?'\nOrario: '+time:''}\n\n*Ordine:*\n${itemsList}\n\n*Totale: €${total.toFixed(2)}*${notes?'\n\nNote: '+notes:''}\n\n_Inviato dal sito web_`;
-  const wa = `https://wa.me/${sanitizePhone(settings.whatsapp)}?text=${encodeURIComponent(msg)}`;
-  window.open(wa, '_blank');
-  cart = [];
-  updateCartUI();
-  closeCheckout();
-  showToast('Ordine inviato! 🎉');
+  const modalita = addr + (time ? `  —  Orario: ${time}` : '');
+
+  const sep = '----------------------------';
+  const msg = [
+    `*NUOVO ORDINE — ${settings.name.toUpperCase()}*`,
+    sep,
+    `*Nome:* ${name}`,
+    `*Telefono:* ${phone}`,
+    `*${modalita}*`,
+    sep,
+    `*Ordine:*`,
+    itemsList,
+    sep,
+    `*Totale: EUR ${total.toFixed(2)}*`,
+    notes ? `\n_Note: ${notes}_` : '',
+    `\n_Inviato dal sito web_`
+  ].filter(Boolean).join('\n');
+
+  const orderData = { name, phone, modalita, ordine: itemsList, totale: `€${total.toFixed(2)}`, note: notes || '—', to_email: settings.ejEmail || '' };
+
+  const submitBtn = document.querySelector('.checkout-submit');
+  if(submitBtn) { submitBtn.textContent = 'Invio in corso…'; submitBtn.disabled = true; }
+
+  sendTelegramOrder(msg)
+    .then(() => {
+      cart = [];
+      updateCartUI();
+      closeCheckout();
+      if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
+      showConfirmed(name, itemsList, total, modalita);
+    })
+    .catch(() => {
+      // fallback: apri WhatsApp se Telegram non è configurato
+      if(!settings.tgBotToken || !settings.tgChatId) {
+        const waPhone = sanitizePhone(settings.whatsapp);
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        cart = [];
+        updateCartUI();
+        closeCheckout();
+        if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
+        showConfirmed(name, itemsList, total, modalita);
+      } else {
+        if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
+        showToast('Errore invio — riprova o chiama il locale');
+      }
+    });
+}
+
+function sendOrderEmail(data) {
+  const pub = settings.ejPublicKey;
+  const svc = settings.ejServiceId;
+  const tpl = settings.ejTemplateId;
+  if(!pub || !svc || !tpl) {
+    // EmailJS non configurato — mostra comunque la conferma
+    return Promise.resolve();
+  }
+  try {
+    emailjs.init(pub);
+    return emailjs.send(svc, tpl, {
+      nome: data.name,
+      telefono: data.phone,
+      modalita: data.modalita,
+      ordine: data.ordine,
+      totale: data.totale,
+      note: data.note,
+      to_email: data.to_email
+    });
+  } catch(e) {
+    return Promise.reject(e);
+  }
+}
+
+function showConfirmed(name, items, total, modalita) {
+  const modal = document.getElementById('order-confirmed');
+  const box = document.getElementById('confirmedBox');
+  document.getElementById('confirmedSummary').innerHTML =
+    `<div style="margin-bottom:0.5rem;color:var(--cream);font-weight:400;">${name}</div>` +
+    `<div style="white-space:pre-line;margin-bottom:0.75rem;">${items}</div>` +
+    `<div style="border-top:1px solid var(--border);padding-top:0.75rem;display:flex;justify-content:space-between;">` +
+    `<span>${modalita}</span><span style="color:var(--gold);font-family:var(--font-disp);font-size:1.2rem;">€${total.toFixed(2)}</span></div>`;
+  modal.style.opacity = '1'; modal.style.visibility = 'visible';
+  setTimeout(() => box.style.transform = 'translateY(0)', 10);
+}
+
+function closeConfirmed() {
+  const modal = document.getElementById('order-confirmed');
+  modal.style.opacity = '0'; modal.style.visibility = 'hidden';
+  document.getElementById('confirmedBox').style.transform = 'translateY(30px)';
+}
+
+// ============ TELEGRAM BOT ============
+function sendTelegramOrder(text) {
+  const token = settings.tgBotToken;
+  const chatId = settings.tgChatId;
+  if(!token || !chatId) return Promise.reject('not_configured');
+  return fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: text,
+      parse_mode: 'Markdown'
+    })
+  }).then(r => {
+    if(!r.ok) return r.json().then(d => Promise.reject(d));
+    return r.json();
+  });
+}
+
+// ============ ADMIN TAB NAVIGATION ============
+function admTab(name, btn) {
+  document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.adm-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('adm-tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function admRefreshStats() {
+  const menuCountEl = document.getElementById('st_menu');
+  const igCountEl = document.getElementById('st_ig');
+  const fotoCountEl = document.getElementById('st_foto');
+  const menuBadge = document.getElementById('menuCount');
+  const menuLabel = document.getElementById('menuCountLabel');
+  if(menuCountEl) menuCountEl.textContent = menuItems.length;
+  if(igCountEl) igCountEl.textContent = igReels.filter(r=>r.url).length;
+  if(menuBadge) menuBadge.textContent = menuItems.length;
+  if(menuLabel) menuLabel.textContent = menuItems.length + ' voci';
+  // count uploaded photos
+  let fotos = 0;
+  if(localStorage.getItem('pz_img_hero')) fotos++;
+  if(localStorage.getItem('pz_img_about')) fotos++;
+  menuItems.forEach(i => { if(localStorage.getItem('pz_img_item_'+i.id)) fotos++; });
+  if(fotoCountEl) fotoCountEl.textContent = fotos;
+}
+
+function resetAllData() {
+  ['pz_settings','pz_menu','pz_ig_reels','pz_img_hero','pz_img_about'].forEach(k => localStorage.removeItem(k));
+  menuItems.forEach(i => localStorage.removeItem('pz_img_item_'+i.id));
+  for(let i=0;i<8;i++) localStorage.removeItem('pz_ig_thumb_'+i);
+  settings = Object.assign({}, DEFAULT_SETTINGS);
+  menuItems = JSON.parse(JSON.stringify(DEFAULT_MENU));
+  igReels = [];
+  igSave();
+  applySettings();
+  renderMenu();
+  populateAdminForm();
+  renderAdminMenuList();
+  admRefreshStats();
+  showToast('Reset completato');
 }
 
 // ============ ADMIN ============
@@ -2137,6 +2682,7 @@ function checkAdminPass() {
 function openAdmin() {
   populateAdminForm();
   renderAdminMenuList();
+  admRefreshStats();
   document.getElementById('admin-overlay').classList.add('open');
 }
 function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); }
@@ -2220,17 +2766,25 @@ function saveSettings() {
 }
 function renderAdminMenuList() {
   const el = document.getElementById('adminMenuList');
+  if(!el) return;
+  admRefreshStats();
+  if(menuItems.length === 0) {
+    el.innerHTML = '<p style="font-size:0.8rem;color:var(--muted);padding:1rem;">Nessuna voce nel menù.</p>';
+    return;
+  }
   el.innerHTML = menuItems.map(item => {
-    const hasUpload = !!localStorage.getItem('pz_img_item_' + item.id);
-    return `<div class="admin-menu-item">
-      <div class="admin-item-info">
-        <div class="admin-item-name">${item.name}</div>
-        <div class="admin-item-meta">${item.cat} — €${parseFloat(item.price).toFixed(2)}${item.badge?' — '+item.badge:''}${hasUpload?' — 📷 foto caricata':''}</div>
+    const localImg = localStorage.getItem('pz_img_item_' + item.id);
+    const thumbSrc = localImg || item.img || '';
+    return `<div class="adm-menu-item">
+      <img class="adm-item-thumb" src="${thumbSrc}" alt="${item.name}" onerror="this.style.opacity='0.2'">
+      <div>
+        <div class="adm-item-name">${item.name}</div>
+        <div class="adm-item-meta">${item.cat} &nbsp;·&nbsp; €${parseFloat(item.price).toFixed(2)}${item.badge?' &nbsp;·&nbsp; '+item.badge:''}${localImg?' &nbsp;·&nbsp; foto caricata':''}</div>
       </div>
-      <div class="admin-item-btns">
-        <button class="admin-btn-sm" onclick="uploadItemImg(${item.id})">📁 Foto</button>
-        <button class="admin-btn-sm" onclick="openEditItem(${item.id})">Modifica</button>
-        <button class="admin-btn-sm danger" onclick="deleteMenuItem(${item.id})">Elimina</button>
+      <div class="adm-item-actions">
+        <button class="adm-btn-sm" onclick="uploadItemImg(${item.id})" title="Cambia foto">Foto</button>
+        <button class="adm-btn-sm" onclick="openEditItem(${item.id})">Modifica</button>
+        <button class="adm-btn-sm del" onclick="deleteMenuItem(${item.id})">Elimina</button>
       </div>
     </div>`;
   }).join('');
