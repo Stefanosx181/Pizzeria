@@ -1793,24 +1793,68 @@ footer {
       <div class="order-method reveal reveal-delay-1">
         <span class="om-icon">🛵</span>
         <h3 class="om-title">Consegna a domicilio</h3>
-        <p class="om-desc">Riceviamo il tuo ordine, lo prepariamo fresco e te lo consegniamo caldo entro 40 minuti nel raggio di 5 km.</p>
-        <button class="btn-primary" onclick="openCart()" style="margin-top:1.5rem">Ordina Ora</button>
+        <p class="om-desc">Ordina su Deliveroo per ricevere le nostre pizze comodamente a casa tua.</p>
+        <a class="btn-primary" id="deliverooLink" href="https://deliveroo.it" target="_blank" rel="noopener" style="margin-top:1.5rem;display:inline-block">Ordina su Deliveroo</a>
       </div>
       <div class="order-method reveal reveal-delay-2">
         <span class="om-icon">🏠</span>
         <h3 class="om-title">Ritiro in locale</h3>
-        <p class="om-desc">Prenota online e ritira la tua pizza già pronta. Eviti l'attesa e la trovi calda al momento esatto scelto da te.</p>
-        <button class="btn-primary" onclick="openCart()" style="margin-top:1.5rem">Prenota</button>
+        <p class="om-desc">Ordina online e ritira la tua pizza già pronta. Scegli l'orario tra le 18:00 e le 23:00.</p>
+        <button class="btn-primary" onclick="openPickupOrder()" style="margin-top:1.5rem">Ordina per Ritiro</button>
       </div>
       <div class="order-method reveal reveal-delay-3">
         <span class="om-icon">🪑</span>
-        <h3 class="om-title">Al tavolo</h3>
-        <p class="om-desc">Prenota il tuo tavolo e vivi l'esperienza completa. Musica, atmosfera e pizze preparate davanti ai tuoi occhi.</p>
-        <a class="btn-primary" id="reservationLink" href="tel:+390000000000" style="margin-top:1.5rem;display:inline-block">Prenota Tavolo</a>
+        <h3 class="om-title">Prenota un Tavolo</h3>
+        <p class="om-desc">Scegli il turno e il numero di persone. Disponibilità in tempo reale su 3 turni serali.</p>
+        <button class="btn-primary" onclick="openTableReservation()" style="margin-top:1.5rem">Prenota Tavolo</button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- TABLE RESERVATION MODAL -->
+<div id="table-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;visibility:hidden;transition:opacity 0.4s,visibility 0.4s;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);padding:2.5rem;width:min(520px,100%);max-height:90vh;overflow-y:auto;">
+    <h2 style="font-family:var(--font-disp);font-size:2rem;font-weight:300;margin-bottom:0.5rem;">Prenota un Tavolo</h2>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:2rem;">Max 30 coperti per turno — disponibilità in tempo reale</p>
+
+    <!-- Slot selection -->
+    <div style="margin-bottom:1.75rem;">
+      <label class="form-label">Scegli il turno</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:0.5rem;" id="slotGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Numero di persone</label>
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:0.25rem;">
+        <button onclick="changePax(-1)" style="width:40px;height:40px;border:1px solid var(--border2);background:none;color:var(--cream);font-size:1.3rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseenter="this.style.background='var(--gold)';this.style.color='var(--bg)'" onmouseleave="this.style.background='none';this.style.color='var(--cream)'">−</button>
+        <span id="paxNum" style="font-family:var(--font-disp);font-size:2rem;font-weight:300;color:var(--gold);min-width:2rem;text-align:center;">2</span>
+        <button onclick="changePax(1)" style="width:40px;height:40px;border:1px solid var(--border2);background:none;color:var(--cream);font-size:1.3rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseenter="this.style.background='var(--gold)';this.style.color='var(--bg)'" onmouseleave="this.style.background='none';this.style.color='var(--cream)'">+</button>
+        <span id="paxAvail" style="font-size:0.75rem;color:var(--muted);margin-left:0.5rem;"></span>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:1.25rem;">
+      <label class="form-label">Nome e Cognome</label>
+      <input class="form-input" id="resName" type="text" placeholder="Mario Rossi">
+    </div>
+    <div class="form-group" style="margin-top:1rem;">
+      <label class="form-label">Numero di Telefono</label>
+      <input class="form-input" id="resPhone" type="tel" placeholder="+39 333 000 0000">
+    </div>
+    <div class="form-group" style="margin-top:1rem;">
+      <label class="form-label">Note (intolleranze, occasione speciale…)</label>
+      <textarea class="form-input" id="resNotes" style="height:60px;resize:none;" placeholder="Opzionale"></textarea>
+    </div>
+
+    <div id="resError" style="font-size:0.8rem;color:#e05c5c;margin-top:1rem;display:none;"></div>
+
+    <button class="btn-primary" onclick="submitReservation()" style="width:100%;margin-top:1.5rem;" id="resSubmitBtn">Invia Prenotazione su WhatsApp</button>
+    <button class="checkout-close-btn" onclick="closeTableReservation()">Annulla</button>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
@@ -1869,14 +1913,10 @@ footer {
   </div>
 </div>
 
-<!-- CHECKOUT MODAL -->
+<!-- CHECKOUT MODAL (solo Ritiro) -->
 <div id="checkout-modal">
   <div class="checkout-box">
-    <h2 class="checkout-h">Completa l'ordine</h2>
-    <div class="delivery-tabs">
-      <button class="del-tab active" onclick="setDelivery('delivery',this)">Consegna</button>
-      <button class="del-tab" onclick="setDelivery('pickup',this)">Ritiro</button>
-    </div>
+    <h2 class="checkout-h">Ordine per Ritiro</h2>
     <div class="form-group">
       <label class="form-label">Nome e Cognome</label>
       <input class="form-input" id="chkName" type="text" placeholder="Mario Rossi">
@@ -1885,21 +1925,10 @@ footer {
       <label class="form-label">Numero di Telefono</label>
       <input class="form-input" id="chkPhone" type="tel" placeholder="+39 333 000 0000">
     </div>
-    <div id="addressFields">
-      <div class="form-group">
-        <label class="form-label">Indirizzo di Consegna</label>
-        <input class="form-input" id="chkAddress" type="text" placeholder="Via Roma 1, Napoli">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Piano / Interno</label>
-          <input class="form-input" id="chkFloor" type="text" placeholder="Es. 3° / int. 5">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Orario desiderato</label>
-          <input class="form-input" id="chkTime" type="time" value="20:00">
-        </div>
-      </div>
+    <div class="form-group">
+      <label class="form-label">Orario di ritiro (18:00 – 23:00)</label>
+      <input class="form-input" id="chkTime" type="time" value="20:00" min="18:00" max="23:00">
+      <div id="chkTimeError" style="font-size:0.75rem;color:#e05c5c;margin-top:0.35rem;display:none;">L'orario deve essere tra le 18:00 e le 23:00</div>
     </div>
     <button class="btn-primary checkout-submit" onclick="submitOrder()">Invia Ordine su WhatsApp</button>
     <button class="checkout-close-btn" onclick="closeCheckout()">Annulla</button>
@@ -2304,7 +2333,7 @@ const DEFAULT_MENU = [
 //   che usa la service_role key segreta (su Netlify env vars)
 // ============================================================
 const SB_URL = 'https://pbnejewyijvzdixfvwuo.supabase.co';
-const SB_KEY = 'sb_publishable_FryKinkJFJNa_Oyx_T_3zA_HwwNxGe-';  // ← incolla qui la Publishable key (per lettura)
+const SB_KEY = '';  // ← incolla qui la Publishable key (per lettura)
 // ============================================================
 const SB_HEADERS = () => ({
   'Content-Type': 'application/json',
@@ -2507,7 +2536,7 @@ function applySettings() {
   document.getElementById('footerPhone2').textContent = s.phone;
   document.getElementById('footerPhone2').href = 'tel:' + s.phone.replace(/\s/g,'');
   document.getElementById('footerWa').href = 'https://wa.me/' + s.whatsapp;
-  document.getElementById('reservationLink').href = 'tel:' + s.phone.replace(/\s/g,'');
+  const waLink = document.getElementById('footerWa'); if(waLink) waLink.href = 'https://wa.me/' + s.whatsapp;
   document.getElementById('footerCopy').textContent = '© ' + new Date().getFullYear() + ' ' + s.name + ' Pizzeria — Tutti i diritti riservati';
   const igLink = s.igLink || (s.igHandle ? 'https://instagram.com/' + s.igHandle : '#');
   document.getElementById('igProfileLink').href = igLink;
@@ -2778,35 +2807,39 @@ function openCart() { document.getElementById('cart-overlay').classList.add('ope
 function closeCart() { document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-sidebar').classList.remove('open'); }
 
 // ============ CHECKOUT ============
-function setDelivery(type, btn) {
-  deliveryType = type;
-  document.querySelectorAll('.del-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('addressFields').style.display = type === 'delivery' ? 'block' : 'none';
-}
+function openPickupOrder() { openCart(); }
 function openCheckout() { closeCart(); document.getElementById('checkout-modal').classList.add('open'); }
 function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); }
 function submitOrder() {
   const name = document.getElementById('chkName').value.trim();
   const phone = document.getElementById('chkPhone').value.trim();
+  const time = document.getElementById('chkTime').value;
+  const errEl = document.getElementById('chkTimeError');
+
   if(!name || !phone) { showToast('Inserisci nome e telefono!'); return; }
+  if(!time) { showToast('Inserisci l\'orario di ritiro!'); return; }
+
+  // Validate time 18:00 - 23:00
+  const [h, m] = time.split(':').map(Number);
+  const mins = h * 60 + m;
+  if (mins < 18 * 60 || mins > 23 * 60) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
 
   const itemsList = cart.map(c => `  ${c.name} x${c.qty}  —  €${(c.price*c.qty).toFixed(2)}`).join('\n');
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
   const notes = document.getElementById('cartNotes').value.trim();
-  const addr = deliveryType === 'delivery'
-    ? `Consegna: ${document.getElementById('chkAddress').value}`
-    : 'Ritiro in sede';
-  const time = document.getElementById('chkTime')?.value || '';
-  const modalita = addr + (time ? `  —  Orario: ${time}` : '');
+  const modalita = `Ritiro in sede  —  Orario: ${time}`;
 
   const sep = '----------------------------';
   const msg = [
-    `*NUOVO ORDINE — ${settings.name.toUpperCase()}*`,
+    `*ORDINE RITIRO — ${settings.name.toUpperCase()}*`,
     sep,
     `*Nome:* ${name}`,
     `*Telefono:* ${phone}`,
-    `*${modalita}*`,
+    `*Orario ritiro:* ${time}`,
     sep,
     `*Ordine:*`,
     itemsList,
@@ -2816,33 +2849,204 @@ function submitOrder() {
     `\n_Inviato dal sito web_`
   ].filter(Boolean).join('\n');
 
-  const orderData = { name, phone, modalita, ordine: itemsList, totale: `€${total.toFixed(2)}`, note: notes || '—', to_email: settings.ejEmail || '' };
-
   const submitBtn = document.querySelector('.checkout-submit');
   if(submitBtn) { submitBtn.textContent = 'Invio in corso…'; submitBtn.disabled = true; }
 
   sendTelegramOrder(msg)
     .then(() => {
-      cart = [];
-      updateCartUI();
-      closeCheckout();
+      cart = []; updateCartUI(); closeCheckout();
       if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
       showConfirmed(name, itemsList, total, modalita);
     })
     .catch(() => {
-      // fallback: apri WhatsApp se Telegram non è configurato
-      if(!settings.tgBotToken || !settings.tgChatId) {
-        const waPhone = sanitizePhone(settings.whatsapp);
-        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-        cart = [];
-        updateCartUI();
-        closeCheckout();
-        if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
-        showConfirmed(name, itemsList, total, modalita);
-      } else {
-        if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
-        showToast('Errore invio — riprova o chiama il locale');
-      }
+      const waPhone = sanitizePhone(settings.whatsapp);
+      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      cart = []; updateCartUI(); closeCheckout();
+      if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
+      showConfirmed(name, itemsList, total, modalita);
+    });
+}
+
+// ============ TABLE RESERVATION ============
+const TABLE_SLOTS = [
+  { label: '19:00', key: 'slot_19' },
+  { label: '20:30', key: 'slot_2030' },
+  { label: '22:00', key: 'slot_22' }
+];
+const MAX_COVERS = 30;
+let selectedSlot = null;
+let paxCount = 2;
+let slotCovers = { slot_19: 0, slot_2030: 0, slot_22: 0 }; // loaded from Supabase
+
+async function loadSlotCovers() {
+  if (!sbReady()) {
+    // fallback localStorage
+    const r = JSON.parse(localStorage.getItem('pz_reservations') || '{}');
+    TABLE_SLOTS.forEach(s => {
+      slotCovers[s.key] = (r[s.key] || []).reduce((sum, x) => sum + x.pax, 0);
+    });
+    return;
+  }
+  try {
+    // Get today's date range for counting
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString();
+    const r = await fetch(
+      `${SB_URL}/rest/v1/pz_reservations?select=slot,pax&created_at=gte.${todayStr}`,
+      { headers: SB_HEADERS() }
+    );
+    if (!r.ok) throw new Error(await r.text());
+    const rows = await r.json();
+    slotCovers = { slot_19: 0, slot_2030: 0, slot_22: 0 };
+    rows.forEach(row => {
+      if (slotCovers[row.slot] !== undefined) slotCovers[row.slot] += row.pax;
+    });
+  } catch(e) {
+    console.warn('Could not load slot covers:', e.message);
+  }
+}
+
+function getSlotAvail(key) {
+  return Math.max(0, MAX_COVERS - (slotCovers[key] || 0));
+}
+
+async function openTableReservation() {
+  selectedSlot = null;
+  paxCount = 2;
+  document.getElementById('paxNum').textContent = paxCount;
+  document.getElementById('resName').value = '';
+  document.getElementById('resPhone').value = '';
+  document.getElementById('resNotes').value = '';
+  document.getElementById('resError').style.display = 'none';
+  // Load fresh covers from Supabase
+  await loadSlotCovers();
+  renderSlots();
+  updatePaxAvail();
+  const m = document.getElementById('table-modal');
+  m.style.opacity = '1'; m.style.visibility = 'visible';
+}
+function closeTableReservation() {
+  const m = document.getElementById('table-modal');
+  m.style.opacity = '0'; m.style.visibility = 'hidden';
+}
+
+function renderSlots() {
+  const grid = document.getElementById('slotGrid');
+  if (!grid) return;
+  grid.innerHTML = TABLE_SLOTS.map(slot => {
+    const avail = getSlotAvail(slot.key);
+    const full = avail === 0;
+    const active = selectedSlot === slot.key;
+    return `<button onclick="selectSlot('${slot.key}')" style="
+      padding:1rem 0.5rem;border:1px solid ${active ? 'var(--gold)' : full ? 'rgba(139,30,30,0.4)' : 'var(--border2)'};
+      background:${active ? 'var(--gold)' : 'none'};
+      color:${active ? 'var(--bg)' : full ? 'var(--muted)' : 'var(--cream)'};
+      font-family:var(--font-disp);font-size:1.3rem;font-weight:300;
+      cursor:${full ? 'not-allowed' : 'none'};
+      display:flex;flex-direction:column;align-items:center;gap:0.4rem;
+      transition:all 0.25s;pointer-events:${full ? 'none' : 'auto'};">
+      <span>${slot.label}</span>
+      <span style="font-family:var(--font-body);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;opacity:0.7;">
+        ${full ? 'Completo' : avail + ' posti'}
+      </span>
+    </button>`;
+  }).join('');
+}
+
+function selectSlot(key) {
+  selectedSlot = key;
+  renderSlots();
+  updatePaxAvail();
+}
+
+function updatePaxAvail() {
+  const el = document.getElementById('paxAvail');
+  if (!el) return;
+  if (!selectedSlot) { el.textContent = 'Seleziona un turno'; return; }
+  const avail = getSlotAvail(selectedSlot);
+  el.textContent = `max ${avail} disponibili`;
+  if (paxCount > avail) { paxCount = Math.max(1, avail); document.getElementById('paxNum').textContent = paxCount; }
+}
+
+function changePax(delta) {
+  const avail = selectedSlot ? getSlotAvail(selectedSlot) : MAX_COVERS;
+  paxCount = Math.min(Math.max(1, paxCount + delta), avail);
+  document.getElementById('paxNum').textContent = paxCount;
+  updatePaxAvail();
+}
+
+async function submitReservation() {
+  const name = document.getElementById('resName').value.trim();
+  const phone = document.getElementById('resPhone').value.trim();
+  const notes = document.getElementById('resNotes').value.trim();
+  const errEl = document.getElementById('resError');
+  errEl.style.display = 'none';
+
+  if (!selectedSlot) { errEl.textContent = 'Seleziona un turno.'; errEl.style.display = 'block'; return; }
+  if (!name || !phone) { errEl.textContent = 'Inserisci nome e telefono.'; errEl.style.display = 'block'; return; }
+
+  // Re-check availability from Supabase before confirming
+  await loadSlotCovers();
+  const avail = getSlotAvail(selectedSlot);
+  if (paxCount > avail) {
+    errEl.textContent = `Solo ${avail} posti disponibili per questo turno.`;
+    errEl.style.display = 'block';
+    renderSlots();
+    return;
+  }
+
+  const btn = document.getElementById('resSubmitBtn');
+  if (btn) { btn.textContent = 'Invio…'; btn.disabled = true; }
+
+  // Save to Supabase
+  if (sbReady()) {
+    try {
+      const r = await fetch(`${SB_URL}/rest/v1/pz_reservations`, {
+        method: 'POST',
+        headers: { ...SB_HEADERS(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ slot: selectedSlot, name, phone, pax: paxCount, notes })
+      });
+      if (!r.ok) throw new Error(await r.text());
+      // Update local cache
+      slotCovers[selectedSlot] = (slotCovers[selectedSlot] || 0) + paxCount;
+    } catch(e) {
+      console.warn('Supabase reservation save failed:', e.message);
+      // fallback localStorage
+      const res = JSON.parse(localStorage.getItem('pz_reservations') || '{}');
+      if (!res[selectedSlot]) res[selectedSlot] = [];
+      res[selectedSlot].push({ name, phone, pax: paxCount, ts: Date.now() });
+      localStorage.setItem('pz_reservations', JSON.stringify(res));
+    }
+  } else {
+    // localStorage fallback
+    const res = JSON.parse(localStorage.getItem('pz_reservations') || '{}');
+    if (!res[selectedSlot]) res[selectedSlot] = [];
+    res[selectedSlot].push({ name, phone, pax: paxCount, ts: Date.now() });
+    localStorage.setItem('pz_reservations', JSON.stringify(res));
+  }
+
+  const slotLabel = TABLE_SLOTS.find(s => s.key === selectedSlot)?.label || selectedSlot;
+  const sep = '----------------------------';
+  const msg = [
+    `*PRENOTAZIONE TAVOLO — ${settings.name.toUpperCase()}*`,
+    sep,
+    `*Nome:* ${name}`,
+    `*Telefono:* ${phone}`,
+    `*Turno:* ${slotLabel}`,
+    `*Persone:* ${paxCount}`,
+    notes ? `*Note:* ${notes}` : '',
+    sep,
+    `_Inviato dal sito web_`
+  ].filter(Boolean).join('\n');
+
+  const waPhone = sanitizePhone(settings.whatsapp);
+  sendTelegramOrder(msg)
+    .catch(() => window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank'))
+    .finally(() => {
+      closeTableReservation();
+      if (btn) { btn.textContent = 'Invia Prenotazione su WhatsApp'; btn.disabled = false; }
+      showToast(`✓ Prenotazione inviata — Turno ${slotLabel}, ${paxCount} persone`);
     });
 }
 
