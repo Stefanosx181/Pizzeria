@@ -2945,6 +2945,8 @@ function submitOrder() {
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
   const notes = document.getElementById('cartNotes').value.trim();
   const modalita = `Ritiro in sede  —  Orario: ${time}`;
+  // Snapshot del carrello prima di svuotarlo (per salvare su DB)
+  const cart_snapshot = cart.map(c => ({ id: c.id, name: c.name, qty: c.qty, price: c.price }));
 
   const sep = '----------------------------';
   const msg = [
@@ -2977,6 +2979,20 @@ function submitOrder() {
     cart = []; updateCartUI(); closeCheckout();
     if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
     showConfirmed(name, itemsList, total, modalita);
+    // Salva ordine su Supabase in background
+    if (sbReady()) {
+      fetch(`${SB_URL}/rest/v1/pz_orders`, {
+        method: 'POST',
+        headers: { ...SB_HEADERS(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          name, phone,
+          pickup_time: time,
+          items: cart_snapshot,
+          total: parseFloat(total.toFixed(2)),
+          notes: notes || ''
+        })
+      }).catch(e => console.warn('Order save failed:', e.message));
+    }
     return;
   }
 
