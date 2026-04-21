@@ -496,6 +496,50 @@ nav.scrolled {
   display: flex; align-items: center; justify-content: center;
 }
 .add-to-cart-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--bg); }
+.add-to-cart-btn.added {
+  background: var(--gold); border-color: var(--gold); color: var(--bg);
+  transform: scale(1.2);
+  transition: all 0.15s var(--ease);
+}
+
+/* CART BANNER — fisso in basso, appare solo con articoli */
+#cart-banner {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 400;
+  background: var(--gold);
+  color: var(--bg);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease);
+  cursor: none;
+}
+#cart-banner.visible { transform: translateY(0); }
+.cart-banner-left {
+  display: flex; align-items: center; gap: 1rem;
+}
+.cart-banner-count {
+  font-family: var(--font-disp); font-size: 1.8rem; font-weight: 300; line-height: 1;
+}
+.cart-banner-label {
+  font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  opacity: 0.8;
+}
+.cart-banner-total {
+  font-family: var(--font-disp); font-size: 1.5rem; font-weight: 300;
+}
+.cart-banner-btn {
+  background: var(--bg); color: var(--gold);
+  border: none; padding: 0.75rem 2rem;
+  font-family: var(--font-body); font-size: 0.8rem;
+  font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: none; transition: all 0.25s var(--ease);
+}
+.cart-banner-btn:hover { background: var(--bg2); }
+@media (max-width: 480px) {
+  #cart-banner { padding: 0.85rem 1.25rem; }
+  .cart-banner-total { display: none; }
+}
 .menu-badge {
   position: absolute; top: 1rem; left: 1rem;
   background: var(--gold);
@@ -1668,6 +1712,16 @@ footer {
   </div>
 </nav>
 
+<!-- CART BANNER -->
+<div id="cart-banner">
+  <div class="cart-banner-left">
+    <div class="cart-banner-count" id="bannerCount">0</div>
+    <div class="cart-banner-label" id="bannerLabel">articoli nel carrello</div>
+  </div>
+  <div class="cart-banner-total" id="bannerTotal"></div>
+  <button class="cart-banner-btn" onclick="openCart()">Vai al carrello →</button>
+</div>
+
 <!-- HERO -->
 <section id="hero">
   <div class="hero-bg" id="heroBg"></div>
@@ -1678,7 +1732,7 @@ footer {
     <p class="hero-sub" id="heroSub">Impasto a lunga lievitazione, forno a legna, ingredienti selezionati. Ogni pizza racconta una storia di passione e tradizione.</p>
     <div class="hero-btns">
       <a href="#menu" class="btn-primary">Esplora il Menù</a>
-      <button class="btn-outline" onclick="openCart()">Ordina Ora</button>
+      <a href="#menu" class="btn-outline">Ordina Ora →</a>
     </div>
   </div>
   <div class="hero-scroll">
@@ -1795,7 +1849,7 @@ footer {
         <span class="om-icon">🏠</span>
         <h3 class="om-title">Ritiro in locale</h3>
         <p class="om-desc">Ordina online e ritira la tua pizza già pronta. Scegli l'orario tra le 18:00 e le 23:00.</p>
-        <button class="btn-primary" onclick="openPickupOrder()" style="margin-top:1.5rem">Ordina per Ritiro</button>
+        <a class="btn-primary" href="#menu" style="margin-top:1.5rem;display:inline-block">Ordina per Ritiro</a>
       </div>
       <div class="order-method reveal reveal-delay-3">
         <span class="om-icon">🪑</span>
@@ -2362,34 +2416,48 @@ let cart = [];
 let currentFilter = 'tutti';
 let deliveryType = 'delivery';
 
+async function sbFetch(table, params = '') {
+  // fetch senza order di default — ogni chiamante specifica l'ordinamento corretto
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, { headers: SB_HEADERS() });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
 async function loadFromSupabase() {
   if (!sbReady()) return false;
+  let ok = false;
+
+  // 1. Settings (key/value — no sort_order/id)
   try {
-    // Load settings
-    const rows = await sbGet('pz_settings', 'select=key,value');
+    const rows = await sbFetch('pz_settings', 'select=key,value');
     if (rows.length > 0) {
       const obj = {};
       rows.forEach(r => { try { obj[r.key] = JSON.parse(r.value); } catch { obj[r.key] = r.value; } });
       settings = Object.assign({}, DEFAULT_SETTINGS, obj);
       localStorage.setItem('pz_settings', JSON.stringify(settings));
     }
-    // Load menu
-    const items = await sbGet('pz_menu', 'select=*');
+    ok = true;
+  } catch(e) { console.warn('Supabase settings load failed:', e.message); }
+
+  // 2. Menu (ha sort_order e id)
+  try {
+    const items = await sbFetch('pz_menu', 'select=*&order=sort_order.asc,id.asc');
     if (items.length > 0) {
       menuItems = items;
       localStorage.setItem('pz_menu', JSON.stringify(menuItems));
     }
-    // Load IG reels
-    const reels = await sbGet('pz_ig_reels', 'select=*');
+  } catch(e) { console.warn('Supabase menu load failed:', e.message); }
+
+  // 3. Instagram Reels (ha sort_order e id)
+  try {
+    const reels = await sbFetch('pz_ig_reels', 'select=*&order=sort_order.asc,id.asc');
     if (reels.length > 0) {
       igReels = reels.map(r => ({ url: r.url, caption: r.caption, thumb: r.thumb }));
       igSave();
     }
-    return true;
-  } catch(e) {
-    console.warn('Supabase load failed, using localStorage:', e.message);
-    return false;
-  }
+  } catch(e) { console.warn('Supabase reels load failed:', e.message); }
+
+  return ok;
 }
 
 async function saveToSupabase() {
@@ -2782,8 +2850,14 @@ function addToCart(id) {
   const existing = cart.find(c => c.id === id);
   if(existing) { existing.qty++; } else { cart.push({...item, qty:1}); }
   updateCartUI();
-  showToast('Aggiunto: ' + item.name);
-  openCart();
+  showToast('+ ' + item.name);
+  // Animazione sul bottone + senza aprire il carrello
+  const btns = document.querySelectorAll(`.add-to-cart-btn[onclick="addToCart(${id})"]`);
+  btns.forEach(btn => {
+    btn.classList.add('added');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.classList.remove('added'); btn.textContent = '+'; }, 800);
+  });
 }
 function removeFromCart(id) {
   cart = cart.filter(c => c.id !== id);
@@ -2799,10 +2873,26 @@ function changeQty(id, delta) {
 function updateCartUI() {
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
   const count = cart.reduce((s,c) => s + c.qty, 0);
+  // Nav badge
   document.querySelectorAll('#cartCount').forEach(el => {
     el.textContent = count;
     el.style.display = count > 0 ? 'flex' : 'none';
   });
+  // Banner in basso
+  const banner = document.getElementById('cart-banner');
+  const bannerCount = document.getElementById('bannerCount');
+  const bannerLabel = document.getElementById('bannerLabel');
+  const bannerTotal = document.getElementById('bannerTotal');
+  if (banner) {
+    if (count > 0) {
+      banner.classList.add('visible');
+      if(bannerCount) bannerCount.textContent = count;
+      if(bannerLabel) bannerLabel.textContent = count === 1 ? 'articolo nel carrello' : 'articoli nel carrello';
+      if(bannerTotal) bannerTotal.textContent = '€' + total.toFixed(2).replace('.',',');
+    } else {
+      banner.classList.remove('visible');
+    }
+  }
   const itemsEl = document.getElementById('cartItems');
   const footerEl = document.getElementById('cartFooter');
   document.getElementById('cartTotal').textContent = '€' + total.toFixed(2).replace('.',',');
