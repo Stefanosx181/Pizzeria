@@ -1657,15 +1657,10 @@ footer {
     <li><a href="#gallery" onclick="closeMobileNav()">Gallery</a></li>
     <li><a href="#instagram" onclick="closeMobileNav()">Instagram</a></li>
     <li><a href="#order-info" onclick="closeMobileNav()">Ordina</a></li>
-    <li>
-      <button class="nav-cart-btn nav-cart-mobile" onclick="openCart()">
-        Carrello <span class="cart-count" id="cartCount">0</span>
-      </button>
-    </li>
   </ul>
   <div style="display:flex;gap:1rem;align-items:center;">
-    <button class="nav-cart-btn" onclick="openCart()" style="display:block;">
-      Carrello <span class="cart-count" id="cartCount2">0</span>
+    <button class="nav-cart-btn" onclick="openCart()">
+      Carrello <span class="cart-count" id="cartCount">0</span>
     </button>
     <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -2624,12 +2619,12 @@ function renderIgAdminEntries() {
           <div class="form-group">
             <label class="form-label">Link Reel Instagram</label>
             <input class="form-input" id="ig_url_${i}" type="url" value="${escHtml(r.url||'')}" placeholder="https://www.instagram.com/reel/..."
-              onchange="igUpdateEntry(${i})">
+              oninput="igUpdateEntry(${i})" onchange="igUpdateEntry(${i})">
           </div>
           <div class="form-group">
             <label class="form-label">Didascalia (opzionale)</label>
             <input class="form-input" id="ig_cap_${i}" type="text" value="${escHtml(r.caption||'')}" placeholder="Una serata di fuoco..."
-              onchange="igUpdateEntry(${i})">
+              oninput="igUpdateEntry(${i})" onchange="igUpdateEntry(${i})">
           </div>
         </div>
         <div class="form-group">
@@ -2653,15 +2648,21 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 }
 
-function igUpdateEntry(i) {
-  if(!igReels[i]) return;
-  const urlEl = document.getElementById('ig_url_' + i);
-  const capEl = document.getElementById('ig_cap_' + i);
-  const thumbEl = document.getElementById('ig_thumb_' + i);
-  if(urlEl) igReels[i].url = urlEl.value.trim();
-  if(capEl) igReels[i].caption = capEl.value.trim();
-  if(thumbEl) igReels[i].thumb = thumbEl.value.trim();
+function syncIgFromDom() {
+  // Legge i valori attuali dal DOM (sicuro anche se onchange non è scattato)
+  igReels.forEach((r, i) => {
+    const urlEl = document.getElementById('ig_url_' + i);
+    const capEl = document.getElementById('ig_cap_' + i);
+    const thumbEl = document.getElementById('ig_thumb_' + i);
+    if (urlEl) r.url = urlEl.value.trim();
+    if (capEl) r.caption = capEl.value.trim();
+    if (thumbEl) r.thumb = thumbEl.value.trim();
+  });
   igSave();
+}
+
+function igUpdateEntry(i) {
+  syncIgFromDom();
   renderInstagram();
 }
 
@@ -2776,7 +2777,7 @@ function changeQty(id, delta) {
 function updateCartUI() {
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
   const count = cart.reduce((s,c) => s + c.qty, 0);
-  document.querySelectorAll('#cartCount, #cartCount2').forEach(el => {
+  document.querySelectorAll('#cartCount').forEach(el => {
     el.textContent = count;
     el.style.display = count > 0 ? 'flex' : 'none';
   });
@@ -2859,8 +2860,8 @@ function submitOrder() {
       showConfirmed(name, itemsList, total, modalita);
     })
     .catch(() => {
-      const waPhone = sanitizePhone(settings.whatsapp);
-      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      const waPhone = getWaPhone();
+      if(waPhone){window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');}else{showToast("Configura il numero WhatsApp nell'admin");}
       cart = []; updateCartUI(); closeCheckout();
       if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
       showConfirmed(name, itemsList, total, modalita);
@@ -2870,13 +2871,13 @@ function submitOrder() {
 // ============ TABLE RESERVATION ============
 const TABLE_SLOTS = [
   { label: '19:00', key: 'slot_19' },
-  { label: '20:30', key: 'slot_2030' },
-  { label: '22:00', key: 'slot_22' }
+  { label: '20:00', key: 'slot_20' },
+  { label: '21:30', key: 'slot_2130' }
 ];
-const MAX_COVERS = 30;
+const MAX_COVERS = 25;
 let selectedSlot = null;
 let paxCount = 2;
-let slotCovers = { slot_19: 0, slot_2030: 0, slot_22: 0 }; // loaded from Supabase
+let slotCovers = { slot_19: 0, slot_20: 0, slot_2130: 0 }; // loaded from Supabase
 
 async function loadSlotCovers() {
   if (!sbReady()) {
@@ -2898,7 +2899,7 @@ async function loadSlotCovers() {
     );
     if (!r.ok) throw new Error(await r.text());
     const rows = await r.json();
-    slotCovers = { slot_19: 0, slot_2030: 0, slot_22: 0 };
+    slotCovers = { slot_19: 0, slot_20: 0, slot_2130: 0 };
     rows.forEach(row => {
       if (slotCovers[row.slot] !== undefined) slotCovers[row.slot] += row.pax;
     });
@@ -3040,9 +3041,12 @@ async function submitReservation() {
     `_Inviato dal sito web_`
   ].filter(Boolean).join('\n');
 
-  const waPhone = sanitizePhone(settings.whatsapp);
+  const waPhone = getWaPhone();
   sendTelegramOrder(msg)
-    .catch(() => window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank'))
+    .catch(() => {
+      if(waPhone) window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      else showToast('Configura il numero WhatsApp nell\'admin');
+    })
     .finally(() => {
       closeTableReservation();
       if (btn) { btn.textContent = 'Invia Prenotazione su WhatsApp'; btn.disabled = false; }
@@ -3206,8 +3210,17 @@ function populateAdminForm() {
   renderIgAdminEntries();
 }
 function sanitizePhone(num) {
-  // rimuove spazi, +, trattini, parentesi
-  return String(num || '').replace(/[\s\+\-\(\)]/g, '');
+  // rimuove tutto tranne le cifre
+  return String(num || '').replace(/[^\d]/g, '');
+}
+function getWaPhone() {
+  const clean = sanitizePhone(settings.whatsapp);
+  // Verifica che non sia il numero placeholder
+  if (!clean || clean === '390000000000' || clean.length < 10) {
+    console.warn('Numero WhatsApp non configurato:', clean);
+    return null;
+  }
+  return clean;
 }
 function updateWaPreview() {
   const raw = document.getElementById('s_whatsapp').value;
@@ -3250,6 +3263,8 @@ async function saveSettings() {
   };
   // Always save to localStorage as cache
   localStorage.setItem('pz_settings', JSON.stringify(settings));
+  // Sync IG reels from DOM before saving (catches paste events that didn't trigger onchange)
+  syncIgFromDom();
   localStorage.setItem('pz_menu', JSON.stringify(menuItems));
   applySettings();
   renderMenu();
