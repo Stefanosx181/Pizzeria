@@ -2965,6 +2965,22 @@ function submitOrder() {
   const submitBtn = document.querySelector('.checkout-submit');
   if(submitBtn) { submitBtn.textContent = 'Invio in corso…'; submitBtn.disabled = true; }
 
+  const waPhone = getWaPhone();
+
+  // Se Telegram non configurato → apri WhatsApp subito (gesto diretto, prima di async)
+  if (!settings.tgBotToken || !settings.tgChatId) {
+    if (waPhone) {
+      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    } else {
+      showToast("Configura il numero WhatsApp nell'admin");
+    }
+    cart = []; updateCartUI(); closeCheckout();
+    if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
+    showConfirmed(name, itemsList, total, modalita);
+    return;
+  }
+
+  // Telegram configurato → prova, fallback WA
   sendTelegramOrder(msg)
     .then(() => {
       cart = []; updateCartUI(); closeCheckout();
@@ -2972,8 +2988,7 @@ function submitOrder() {
       showConfirmed(name, itemsList, total, modalita);
     })
     .catch(() => {
-      const waPhone = getWaPhone();
-      if(waPhone){window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');}else{showToast("Configura il numero WhatsApp nell'admin");}
+      if(waPhone) window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
       cart = []; updateCartUI(); closeCheckout();
       if(submitBtn) { submitBtn.textContent = 'Invia Ordine'; submitBtn.disabled = false; }
       showConfirmed(name, itemsList, total, modalita);
@@ -3154,16 +3169,35 @@ async function submitReservation() {
   ].filter(Boolean).join('\n');
 
   const waPhone = getWaPhone();
-  sendTelegramOrder(msg)
-    .catch(() => {
-      if(waPhone) window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-      else showToast('Configura il numero WhatsApp nell\'admin');
-    })
-    .finally(() => {
-      closeTableReservation();
-      if (btn) { btn.textContent = 'Invia Prenotazione su WhatsApp'; btn.disabled = false; }
-      showToast(`✓ Prenotazione inviata — Turno ${slotLabel}, ${paxCount} persone`);
+
+  // Verifica numero prima di procedere
+  if (!waPhone && !settings.tgBotToken) {
+    errEl.textContent = 'Configura il numero WhatsApp nelle impostazioni admin.';
+    errEl.style.display = 'block';
+    if (btn) { btn.textContent = 'Invia Prenotazione su WhatsApp'; btn.disabled = false; }
+    return;
+  }
+
+  // Apri WhatsApp SUBITO (gesto diretto utente, prima di qualsiasi async)
+  // I browser bloccano window.open nelle Promise async
+  let waOpened = false;
+  if (waPhone && !settings.tgBotToken) {
+    window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    waOpened = true;
+  }
+
+  closeTableReservation();
+  if (btn) { btn.textContent = 'Invia Prenotazione su WhatsApp'; btn.disabled = false; }
+  showToast(`✓ Prenotazione confermata — Turno ${slotLabel}, ${paxCount} persone`);
+
+  // Se Telegram è configurato, manda in background
+  if (settings.tgBotToken && settings.tgChatId) {
+    sendTelegramOrder(msg).catch(() => {
+      if (waPhone && !waOpened) {
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
     });
+  }
 }
 
 function sendOrderEmail(data) {
